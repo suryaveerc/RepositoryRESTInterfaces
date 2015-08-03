@@ -16,8 +16,38 @@ public class PresentityDAO {
 
     private static final String SQL_INSERT = "insert into presentity (domain,username,event,etag,expires,sender,body,received_time ) values "
             + "(?,?,?,?,?,?,?,?)";
+    private static final String SQL_UPDATE = "update presentity set etag=?,expires=?,received_time=?,sender=?,body=? where domain=? AND username=? AND event=? AND etag=?";
     private static final String SQL_SELECT = "select id,body,extra_hdrs,expires from presentity where domain=? AND username=? AND event=? AND etag=? order by received_time";
     private static final String SQL_DELETE = "delete from presentity where domain=? AND username=? AND event=? AND etag=? order by received_time";
+
+    public int update(Presentity presentity, String etag, String domain, String event, String userName) throws Exception {
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        int rowsAffected = 0;
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            preparedStatement = connection.prepareStatement(SQL_UPDATE);
+            preparedStatement.setObject(1, presentity.getEtag());
+            preparedStatement.setObject(2, presentity.getExpires());
+            preparedStatement.setObject(3, presentity.getReceived_time());
+            preparedStatement.setObject(4, presentity.getSender());
+            preparedStatement.setObject(5, presentity.getBody());
+            preparedStatement.setObject(6, domain);
+            preparedStatement.setObject(7, userName);
+            preparedStatement.setObject(8, event);
+            preparedStatement.setObject(9, etag);
+            rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Error creating connection");
+            e.printStackTrace();
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
+        }
+        return rowsAffected;
+    }
 
     public int create(Presentity presentity) throws Exception {
 
@@ -95,7 +125,7 @@ public class PresentityDAO {
             preparedStatement.setObject(3, event);
             preparedStatement.setObject(4, etag);
             rowsAffected = preparedStatement.executeUpdate();
-            System.out.println("Delete Staus: "+rowsAffected);
+            System.out.println("Delete Staus: " + rowsAffected);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
