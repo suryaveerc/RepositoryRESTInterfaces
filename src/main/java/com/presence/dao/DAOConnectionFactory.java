@@ -17,7 +17,7 @@ public class DAOConnectionFactory {
 
     private static final String databaseJNDI = "";
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://192.168.254.129:3306/opensips";
+    private static final String DB_URL = "jdbc:mysql://192.168.254.130:3306/opensips";
     // Database credentials
     private static final String USER = "root";
     private static final String PASS = "";
