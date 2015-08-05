@@ -23,7 +23,6 @@ public class PresentityDAO {
     private static final String SQL_SELECT_CHECK_NO_ETAG = "select count(*) from presentity where domain=? AND username=? AND event=?";
 
     public int update(Presentity presentity, String etag, String domain, String event, String userName) throws Exception {
-
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         int rowsAffected = 0;
@@ -42,9 +41,11 @@ public class PresentityDAO {
             rowsAffected = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         } catch (Exception e) {
             System.out.println("Error creating connection");
             e.printStackTrace();
+            throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
         }
@@ -70,9 +71,11 @@ public class PresentityDAO {
             rowsAffected = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         } catch (Exception e) {
             System.out.println("Error creating connection");
             e.printStackTrace();
+            throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
         }
@@ -117,7 +120,7 @@ public class PresentityDAO {
         return presentityList;
     }
 
-    public int delete(String domain, String userName, String event, String etag) {
+    public int delete(String domain, String userName, String event, String etag) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         int rowsAffected = 0;
@@ -132,9 +135,11 @@ public class PresentityDAO {
             System.out.println("Delete Staus: " + rowsAffected);
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         } catch (Exception e) {
             System.out.println("Error creating connection");
             e.printStackTrace();
+            throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
         }
@@ -144,7 +149,7 @@ public class PresentityDAO {
     public Boolean check(String domain, String userName, String event, String etag) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
-        
+        ResultSet rs = null;
         int count = 0;
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -158,7 +163,7 @@ public class PresentityDAO {
             preparedStatement.setObject(2, userName);
             preparedStatement.setObject(3, event);
 //            System.out.println(preparedStatement.toString());
-            ResultSet rs = preparedStatement.executeQuery();
+            rs = preparedStatement.executeQuery();
             while(rs.next())
                 count = rs.getInt(1);
             System.out.println("Now of records: " + count);
@@ -170,7 +175,7 @@ public class PresentityDAO {
             e.printStackTrace();
             throw e;
         } finally {
-            DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, rs);
         }
         return (count > 0);
     }

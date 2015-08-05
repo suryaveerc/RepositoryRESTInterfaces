@@ -45,7 +45,7 @@ public class PresentityService {
         }
         return Response.status(201).build();
     }
-    /* This method allows to insert new presentity into the repository */
+    /* This method allows to update new presentity into the repository */
 
     @PUT
     @Path("/{presentityId}")
@@ -134,7 +134,6 @@ public class PresentityService {
             PresentityDAO presentityDAO = new PresentityDAO();
             Boolean recordPresent;
             recordPresent = presentityDAO.check(domain, userName, event, etag);
-
             ResponseBuilder response;
             if (recordPresent) {
                 response = Response.ok();
