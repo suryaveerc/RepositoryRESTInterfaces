@@ -73,6 +73,33 @@ public class PresentityService {
     }
 
     @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAllPresentity() {
+
+        try {
+            PresentityDAO presentityDAO = new PresentityDAO();
+            List<Presentity> presentityList;
+            GenericEntity< List< Presentity>> entity;
+            presentityList = presentityDAO.fetchAll();
+
+            ResponseBuilder response;
+
+            if (!presentityList.isEmpty()) {
+                entity = new GenericEntity<List<Presentity>>(presentityList) {
+                };
+                response = Response.ok(entity);
+            } else {
+                response = Response.status(Response.Status.NOT_FOUND).entity("No resources available.");
+            }
+
+            return response.build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
+
+    @GET
     @Path("/{presentityId}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getPresentityByUserAndDomain(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {

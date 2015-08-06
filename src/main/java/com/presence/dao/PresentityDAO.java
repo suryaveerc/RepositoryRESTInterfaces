@@ -18,9 +18,11 @@ public class PresentityDAO {
             + "(?,?,?,?,?,?,?,?)";
     private static final String SQL_UPDATE = "update presentity set etag=?,expires=?,received_time=?,sender=?,body=? where domain=? AND username=? AND event=? AND etag=?";
     private static final String SQL_SELECT = "select id,body,extra_hdrs,expires from presentity where domain=? AND username=? AND event=? AND etag=? order by received_time";
+    private static final String SQL_SELECT_NO_ETAG = "select id,body,extra_hdrs,expires from presentity where domain=? AND username=? AND event=? order by received_time";
+    private static final String SQL_SELECT_ALL = "select id,username,domain,event,expires,etag from presentity order by username";
     private static final String SQL_DELETE = "delete from presentity where domain=? AND username=? AND event=? AND etag=? order by received_time";
-    private static final String SQL_SELECT_CHECK = "select count(*) from presentity where domain=? AND username=? AND event=? AND etag=?";
-    private static final String SQL_SELECT_CHECK_NO_ETAG = "select count(*) from presentity where domain=? AND username=? AND event=?";
+    private static final String SQL_CHECK = "select count(*) from presentity where domain=? AND username=? AND event=? AND etag=?";
+    private static final String SQL_CHECK_NO_ETAG = "select count(*) from presentity where domain=? AND username=? AND event=?";
 
     public int update(Presentity presentity, String etag, String domain, String event, String userName) throws Exception {
         Connection connection = null;
@@ -82,6 +84,41 @@ public class PresentityDAO {
         return rowsAffected;
     }
 
+    public List<Presentity> fetchAll() throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Presentity> presentityList = new ArrayList<>();
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            preparedStatement = connection.prepareStatement(SQL_SELECT_ALL);
+            resultSet = preparedStatement.executeQuery();
+            Presentity presentity;
+            while (resultSet.next()) {
+                System.out.println("In while");
+                presentity = new Presentity();
+                presentity.setId(resultSet.getInt("id"));
+                presentity.setUsername(resultSet.getString("username"));
+                presentity.setDomain(resultSet.getString("domain"));
+                presentity.setExpires(resultSet.getInt("expires"));
+                presentity.setEtag(resultSet.getString("etag"));
+                presentity.setEvent(resultSet.getString("event"));
+                presentityList.add(presentity);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (Exception e) {
+            System.out.println("Error creating connection");
+            e.printStackTrace();
+            throw e;
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
+
+        }
+        return presentityList;
+    }
+
     public List<Presentity> find(String domain, String userName, String event, String etag) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -89,11 +126,15 @@ public class PresentityDAO {
         List<Presentity> presentityList = new ArrayList<>();
         try {
             connection = DAOConnectionFactory.getConnection();
-            preparedStatement = connection.prepareStatement(SQL_SELECT);
+            if (etag != null) {
+                preparedStatement = connection.prepareStatement(SQL_SELECT);
+                preparedStatement.setObject(4, etag);
+            } else {
+                preparedStatement = connection.prepareStatement(SQL_SELECT_NO_ETAG);
+            }
             preparedStatement.setObject(1, domain);
             preparedStatement.setObject(2, userName);
             preparedStatement.setObject(3, event);
-            preparedStatement.setObject(4, etag);
 
             resultSet = preparedStatement.executeQuery();
             Presentity presentity;
@@ -115,7 +156,7 @@ public class PresentityDAO {
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
-            
+
         }
         return presentityList;
     }
@@ -154,18 +195,19 @@ public class PresentityDAO {
         try {
             connection = DAOConnectionFactory.getConnection();
             if (etag != null) {
-                preparedStatement = connection.prepareStatement(SQL_SELECT_CHECK);
+                preparedStatement = connection.prepareStatement(SQL_CHECK);
                 preparedStatement.setObject(4, etag);
             } else {
-                preparedStatement = connection.prepareStatement(SQL_SELECT_CHECK_NO_ETAG);
+                preparedStatement = connection.prepareStatement(SQL_CHECK_NO_ETAG);
             }
             preparedStatement.setObject(1, domain);
             preparedStatement.setObject(2, userName);
             preparedStatement.setObject(3, event);
 //            System.out.println(preparedStatement.toString());
             rs = preparedStatement.executeQuery();
-            while(rs.next())
+            while (rs.next()) {
                 count = rs.getInt(1);
+            }
             System.out.println("Now of records: " + count);
         } catch (SQLException e) {
             e.printStackTrace();

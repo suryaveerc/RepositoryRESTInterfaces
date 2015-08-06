@@ -17,7 +17,7 @@ public class DAOConnectionFactory {
 
     private static final String databaseJNDI = "";
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://192.168.2.106:3306/opensips";
+    private static final String DB_URL = "jdbc:mysql://192.168.254.131:3306/opensips";
     // Database credentials
     private static final String USER = "root";
     private static final String PASS = "";
@@ -47,7 +47,7 @@ public class DAOConnectionFactory {
     }
 
     protected static Connection getConnection() {
-      
+
         try {
             if (databaseJNDI == "") {
                 System.out.println("Creating database connection using DriverManager");
@@ -55,9 +55,9 @@ public class DAOConnectionFactory {
                 conn = DriverManager.getConnection(DB_URL, USER, PASS);
             } else {
                 System.out.println("Creating database connection using DriverManager");
-                  if (conn != null) {
-            return conn;
-        }
+                if (conn != null) {
+                    return conn;
+                }
                 conn = createConnection().getConnection();
             }
         } catch (SQLException | ClassNotFoundException e) {
