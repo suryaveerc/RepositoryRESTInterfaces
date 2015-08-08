@@ -74,13 +74,13 @@ public class PresentityService {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllPresentity() {
+    public Response getAllPresentity(@QueryParam("expires") Integer expires) {
 
         try {
             PresentityDAO presentityDAO = new PresentityDAO();
             List<Presentity> presentityList;
             GenericEntity< List< Presentity>> entity;
-            presentityList = presentityDAO.fetchAll();
+            presentityList = presentityDAO.fetchAll(expires);
 
             ResponseBuilder response;
 
@@ -102,7 +102,7 @@ public class PresentityService {
     @GET
     @Path("/{presentityId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getPresentityByUserAndDomain(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
+    public Response getPresentity(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
         System.out.println("Query for: " + presentityId + " : " + event + " : " + etag);
         try {
             String userName = presentityId.substring(0, presentityId.indexOf('@'));
@@ -110,7 +110,7 @@ public class PresentityService {
             PresentityDAO presentityDAO = new PresentityDAO();
             List<Presentity> presentityList;
             GenericEntity< List< Presentity>> entity;
-            presentityList = presentityDAO.find(domain, userName, event, etag);
+            presentityList = presentityDAO.findByKey(domain, userName, event, etag);
 
             ResponseBuilder response;
 
@@ -140,6 +140,27 @@ public class PresentityService {
             String domain = presentityId.substring(presentityId.indexOf('@') + 1);
             PresentityDAO presentityDAO = new PresentityDAO();
             status = presentityDAO.delete(domain, userName, event, etag);
+            ResponseBuilder response;
+//Return 200 if any record deleted, 204 otherwise.            
+            response = (status > 0 ? Response.ok() : Response.status(204));
+            return response.build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
+    
+    @DELETE
+    public Response deletePresentityByExpire(@QueryParam("expires") Integer expires) {
+        System.out.println("Delete request for: " + expires);
+
+        int status = 0;
+        try {
+            if(expires!=null)
+            {
+                PresentityDAO presentityDAO = new PresentityDAO();
+                status = presentityDAO.deleteByExpires(expires);
+            }
             ResponseBuilder response;
 //Return 200 if any record deleted, 204 otherwise.            
             response = (status > 0 ? Response.ok() : Response.status(204));

@@ -1,5 +1,7 @@
 package com.presence.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,18 +12,18 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement
-
+@JsonInclude(Include.NON_NULL)
 public class Presentity implements Serializable {
     private Integer id;
-    private String username="";
-    private String domain="";
-    private String event="";
-    private String etag="";
-    private Integer expires=new Integer("-1");
-    private Integer received_time=new Integer("-1");
-    private String body="";
-    private String extra_hdrs="";
-    private String sender="";
+    private String username;
+    private String domain;
+    private String event;
+    private String etag;
+    private Integer expires;
+    private Integer received_time;
+    private String body;
+    private String extra_hdrs;
+    private String sender;
 
     @Override
     public boolean equals(Object o) {
