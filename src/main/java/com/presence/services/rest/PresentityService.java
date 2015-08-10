@@ -19,6 +19,7 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Suryaveer on 7/20/2015.
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 @Path("/V1/presentity")
 public class PresentityService {
 
+             private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityService.class);
     /* This method allows to insert new presentity into the repository */
     @POST
     @Consumes("application/json")
@@ -35,15 +37,12 @@ public class PresentityService {
         PresentityDAO presentityDAO = new PresentityDAO();
         try {
             int status = presentityDAO.create(presentity);
-            if (status == 0) {
-                return Response.status(409).entity("No record inserted.").build();
-            }
+             return Response.status(201).build();
         } catch (Exception e) {
-            e.printStackTrace();
-
+            logger.error("Error while sending request to database", e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
-        return Response.status(201).build();
+       
     }
     /* This method allows to update new presentity into the repository */
 
@@ -51,22 +50,23 @@ public class PresentityService {
     @Path("/{presentityId}")
     @Consumes("application/json")
     public Response updatePresentity(@PathParam("presentityId") String presentityId, Presentity presentity, @QueryParam("event") String event, @QueryParam("etag") String etag) {
-        System.out.println("****************************");
-        System.out.println(presentity);
+        
+        
         String userName = presentityId.substring(0, presentityId.indexOf('@'));
         String domain = presentityId.substring(presentityId.indexOf('@') + 1);
         PresentityDAO presentityDAO = new PresentityDAO();
-        System.out.println(presentity);
+        logger.debug(presentity.toString());
         /*RFC2616 If an existing resource is modified, either the 200 (OK)
          or 204 (No Content) response codes SHOULD be sent to indicate successful 
          completion of the request. */
         try {
             int status = presentityDAO.update(presentity, etag, domain, event, userName);
+            logger.debug("Return status {}.", status);
             if (status == 0) {
                 return Response.status(204).entity("No record updated.").build();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while sending request to database", e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
         return Response.ok().build();
@@ -94,7 +94,7 @@ public class PresentityService {
 
             return response.build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while fetching all Presentities.",e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -124,7 +124,7 @@ public class PresentityService {
 
             return response.build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while fetching presentity {}.",presentityId,e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -145,7 +145,7 @@ public class PresentityService {
             response = (status > 0 ? Response.ok() : Response.status(204));
             return response.build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while deleting presentity {}.",presentityId,e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -166,7 +166,7 @@ public class PresentityService {
             response = (status > 0 ? Response.ok() : Response.status(204));
             return response.build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while fetching presentities.",e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -175,7 +175,7 @@ public class PresentityService {
     @Path("/{presentityId}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response checkPresentity(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
-        System.out.println("Query for: " + presentityId + " : " + event + " : " + etag);
+        logger.debug("Request for presentity:{}, event: {}, etag: {}", presentityId,event,etag);
         try {
             String userName = presentityId.substring(0, presentityId.indexOf('@'));
             String domain = presentityId.substring(presentityId.indexOf('@') + 1);
@@ -190,7 +190,7 @@ public class PresentityService {
             }
             return response.build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while fetching presentity {}.",presentityId,e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }

@@ -2,9 +2,12 @@ package com.presence.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -12,6 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement
+@JsonPropertyOrder({ "username", "domain", "event", "etag", "expires","receivedTime","body","extra_hdrs","sender" })
 @JsonInclude(Include.NON_NULL)
 public class Presentity implements Serializable {
     private Integer id;
@@ -20,9 +24,11 @@ public class Presentity implements Serializable {
     private String event;
     private String etag;
     private Integer expires;
-    private Integer received_time;
+    @JsonProperty("received_time")
+    private Integer receivedTime;
     private String body;
-    private String extra_hdrs;
+    @JsonProperty("extra_hdrs")
+    private String extraHeaders;
     private String sender;
 
     @Override
@@ -37,7 +43,7 @@ public class Presentity implements Serializable {
     public int hashCode() {
         int result = id.hashCode();
         result = 31 * result + etag.hashCode();
-        result = 31 * result + received_time.hashCode();
+        result = 31 * result + receivedTime.hashCode();
         result = 31 * result + body.hashCode();
         return result;
     }
@@ -57,7 +63,7 @@ public class Presentity implements Serializable {
     public void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getUsername() {
         return username;
     }
@@ -98,12 +104,12 @@ public class Presentity implements Serializable {
         this.expires = expires;
     }
 
-    public Integer getReceived_time() {
-        return received_time;
+    public Integer getReceivedTime() {
+        return receivedTime;
     }
 
-    public void setReceived_time(Integer received_time) {
-        this.received_time = received_time;
+    public void setReceivedTime(Integer receivedTime) {
+        this.receivedTime = receivedTime;
     }
 
     public String getBody() {
@@ -114,12 +120,12 @@ public class Presentity implements Serializable {
         this.body = body;
     }
 
-    public String getExtra_hdrs() {
-        return extra_hdrs;
+    public String getExtraHeaders() {
+        return extraHeaders;
     }
 
-    public void setExtra_hdrs(String extra_hdrs) {
-        this.extra_hdrs = extra_hdrs;
+    public void setExtraHeaders(String extraHeaders) {
+        this.extraHeaders = extraHeaders;
     }
 
 	@Override
@@ -128,8 +134,8 @@ public class Presentity implements Serializable {
 				+ (username != null ? "username=" + username + ", " : "")
 				+ (domain != null ? "domain=" + domain + ", " : "") + (event != null ? "event=" + event + ", " : "")
 				+ (etag != null ? "etag=" + etag + ", " : "") + (expires != null ? "expires=" + expires + ", " : "")
-				+ (received_time != null ? "received_time=" + received_time + ", " : "")
-				+ (extra_hdrs != null ? "extra_hdrs=" + extra_hdrs + ", " : "")
+				+ (receivedTime != null ? "receivedTime=" + receivedTime + ", " : "")
+				+ (extraHeaders != null ? "extraHeaders=" + extraHeaders + ", " : "")
 				+ (sender != null ? "sender=" + sender : "") + "]";
 	}
 

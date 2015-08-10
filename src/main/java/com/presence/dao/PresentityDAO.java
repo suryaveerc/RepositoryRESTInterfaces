@@ -1,6 +1,7 @@
 package com.presence.dao;
 
 import com.presence.model.Presentity;
+import com.presence.services.rest.WatcherService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +9,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Suryaveer on 7/20/2015.
  */
 public class PresentityDAO {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityDAO.class);
     //Presentity Table: Primary key = id.
     //Unique index: username,domain,event,etag
     private static final String SQL_INSERT = "insert into presentity (domain,username,event,etag,expires,sender,body,received_time ) values "
@@ -45,7 +48,7 @@ public class PresentityDAO {
             preparedStatement = connection.prepareStatement(SQL_UPDATE);
             preparedStatement.setObject(1, presentity.getEtag());
             preparedStatement.setObject(2, presentity.getExpires());
-            preparedStatement.setObject(3, presentity.getReceived_time());
+            preparedStatement.setObject(3, presentity.getReceivedTime());
             preparedStatement.setObject(4, presentity.getSender());
             preparedStatement.setObject(5, presentity.getBody());
             preparedStatement.setObject(6, domain);
@@ -54,11 +57,10 @@ public class PresentityDAO {
             preparedStatement.setObject(9, etag);
             rowsAffected = preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+                 logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
@@ -81,14 +83,13 @@ public class PresentityDAO {
             preparedStatement.setObject(5, presentity.getExpires());
             preparedStatement.setObject(6, presentity.getSender());
             preparedStatement.setObject(7, presentity.getBody());
-            preparedStatement.setObject(8, presentity.getReceived_time());
+            preparedStatement.setObject(8, presentity.getReceivedTime());
             rowsAffected = preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
@@ -125,11 +126,10 @@ public class PresentityDAO {
                 presentityList.add(presentity);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
@@ -163,17 +163,16 @@ public class PresentityDAO {
                 
                 presentity.setBody(resultSet.getString("body"));
                 presentity.setExpires(resultSet.getInt("expires"));
-                presentity.setExtra_hdrs(resultSet.getString("extra_hdrs"));
+                presentity.setExtraHeaders(resultSet.getString("extra_hdrs"));
                 if(etag==null)
                     presentity.setEtag(resultSet.getString("etag"));
                 presentityList.add(presentity);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
@@ -206,11 +205,10 @@ public class PresentityDAO {
                 presentityList.add(presentity);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
@@ -233,11 +231,10 @@ public class PresentityDAO {
             rowsAffected = preparedStatement.executeUpdate();
             System.out.println("Delete Staus: " + rowsAffected);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
@@ -256,11 +253,10 @@ public class PresentityDAO {
             rowsAffected = preparedStatement.executeUpdate();
             System.out.println("Delete Staus: " + rowsAffected);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
@@ -289,13 +285,13 @@ public class PresentityDAO {
             while (rs.next()) {
                 count = rs.getInt(1);
             }
-            System.out.println("Now of records: " + count);
+            logger.debug("No. of records: {}" , count);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
             throw e;
         } catch (Exception e) {
-            System.out.println("Error creating connection");
-            e.printStackTrace();
+            logger.error("Error while creating preparedstatement", e);
+           
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, rs);
