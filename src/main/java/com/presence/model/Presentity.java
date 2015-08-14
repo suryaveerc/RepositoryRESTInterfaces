@@ -9,15 +9,14 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
  * Created by Suryaveer on 7/16/2015.
  */
-
 @XmlRootElement
-@JsonPropertyOrder({ "username", "domain", "event", "etag", "expires","receivedTime","body","extra_hdrs","sender" })
+@JsonPropertyOrder({"username", "domain", "event", "etag", "expires", "receivedTime", "body", "extra_hdrs", "sender"})
 @JsonInclude(Include.NON_NULL)
 public class Presentity implements Serializable {
+
     private Integer id;
     private String username;
     private String domain;
@@ -33,8 +32,12 @@ public class Presentity implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Presentity)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Presentity)) {
+            return false;
+        }
         return (!id.equals(((Presentity) o).id));
 
     }
@@ -63,7 +66,7 @@ public class Presentity implements Serializable {
     public void setId(Integer id) {
         this.id = id;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -128,16 +131,15 @@ public class Presentity implements Serializable {
         this.extraHeaders = extraHeaders;
     }
 
-	@Override
-	public String toString() {
-		return "Presentity [" + (id != null ? "id=" + id + ", " : "")
-				+ (username != null ? "username=" + username + ", " : "")
-				+ (domain != null ? "domain=" + domain + ", " : "") + (event != null ? "event=" + event + ", " : "")
-				+ (etag != null ? "etag=" + etag + ", " : "") + (expires != null ? "expires=" + expires + ", " : "")
-				+ (receivedTime != null ? "receivedTime=" + receivedTime + ", " : "")
-				+ (extraHeaders != null ? "extraHeaders=" + extraHeaders + ", " : "")
-				+ (sender != null ? "sender=" + sender : "") + "]";
-	}
-
+    @Override
+    public String toString() {
+        return "Presentity [" + (id != null ? "id=" + id + ", " : "")
+                + (username != null ? "username=" + username + ", " : "")
+                + (domain != null ? "domain=" + domain + ", " : "") + (event != null ? "event=" + event + ", " : "")
+                + (etag != null ? "etag=" + etag + ", " : "") + (expires != null ? "expires=" + expires + ", " : "")
+                + (receivedTime != null ? "receivedTime=" + receivedTime + ", " : "")
+                + (extraHeaders != null ? "extraHeaders=" + extraHeaders + ", " : "")
+                + (sender != null ? "sender=" + sender : "") + "]";
+    }
 
 }

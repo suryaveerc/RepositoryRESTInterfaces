@@ -27,8 +27,9 @@ import org.slf4j.LoggerFactory;
 @Path("/V1/presentity")
 public class PresentityService {
 
-             private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityService.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityService.class);
     /* This method allows to insert new presentity into the repository */
+
     @POST
     @Consumes("application/json")
     public Response addPresentity(Presentity presentity) {
@@ -36,13 +37,13 @@ public class PresentityService {
         System.out.println(presentity);
         PresentityDAO presentityDAO = new PresentityDAO();
         try {
-            int status = presentityDAO.create(presentity);
-             return Response.status(201).build();
+            int status = presentityDAO.insert(presentity);
+            return Response.status(201).build();
         } catch (Exception e) {
             logger.error("Error while sending request to database", e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
-       
+
     }
     /* This method allows to update new presentity into the repository */
 
@@ -50,8 +51,7 @@ public class PresentityService {
     @Path("/{presentityId}")
     @Consumes("application/json")
     public Response updatePresentity(@PathParam("presentityId") String presentityId, Presentity presentity, @QueryParam("event") String event, @QueryParam("etag") String etag) {
-        
-        
+
         String userName = presentityId.substring(0, presentityId.indexOf('@'));
         String domain = presentityId.substring(presentityId.indexOf('@') + 1);
         PresentityDAO presentityDAO = new PresentityDAO();
@@ -94,7 +94,7 @@ public class PresentityService {
 
             return response.build();
         } catch (Exception e) {
-            logger.error("Error while fetching all Presentities.",e);
+            logger.error("Error while fetching all Presentities.", e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -124,7 +124,7 @@ public class PresentityService {
 
             return response.build();
         } catch (Exception e) {
-            logger.error("Error while fetching presentity {}.",presentityId,e);
+            logger.error("Error while fetching presentity {}.", presentityId, e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -145,19 +145,18 @@ public class PresentityService {
             response = (status > 0 ? Response.ok() : Response.status(204));
             return response.build();
         } catch (Exception e) {
-            logger.error("Error while deleting presentity {}.",presentityId,e);
+            logger.error("Error while deleting presentity {}.", presentityId, e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
-    
+
     @DELETE
     public Response deletePresentityByExpire(@QueryParam("expires") Integer expires) {
         System.out.println("Delete request for: " + expires);
 
         int status = 0;
         try {
-            if(expires!=null)
-            {
+            if (expires != null) {
                 PresentityDAO presentityDAO = new PresentityDAO();
                 status = presentityDAO.deleteByExpires(expires);
             }
@@ -166,7 +165,7 @@ public class PresentityService {
             response = (status > 0 ? Response.ok() : Response.status(204));
             return response.build();
         } catch (Exception e) {
-            logger.error("Error while fetching presentities.",e);
+            logger.error("Error while fetching presentities.", e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
@@ -175,7 +174,7 @@ public class PresentityService {
     @Path("/{presentityId}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response checkPresentity(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
-        logger.debug("Request for presentity:{}, event: {}, etag: {}", presentityId,event,etag);
+        logger.debug("Request for presentity:{}, event: {}, etag: {}", presentityId, event, etag);
         try {
             String userName = presentityId.substring(0, presentityId.indexOf('@'));
             String domain = presentityId.substring(presentityId.indexOf('@') + 1);
@@ -190,7 +189,7 @@ public class PresentityService {
             }
             return response.build();
         } catch (Exception e) {
-            logger.error("Error while fetching presentity {}.",presentityId,e);
+            logger.error("Error while fetching presentity {}.", presentityId, e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }

@@ -9,21 +9,21 @@ import java.util.Objects;
 /**
  * Created by Suryaveer on 7/16/2015.
  */
-
-@JsonPropertyOrder({ "presentityUri", "watcherUsername", "watcherDomain", "event", "status","reason","insertedTime"})
+@JsonPropertyOrder({"presentityUri", "watcherUsername", "watcherDomain", "event", "status", "reason", "insertedTime"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Watchers implements Serializable {
+
     private Integer id;
     @JsonProperty("presentity_uri")
     private String presentityUri;
-     @JsonProperty("watcher_username")
+    @JsonProperty("watcher_username")
     private String watcherUsername;
-      @JsonProperty("watcher_domain")
+    @JsonProperty("watcher_domain")
     private String watcherDomain;
     private String event;
     private Integer status;
     private String reason;
-     @JsonProperty("inserted_time")
+    @JsonProperty("inserted_time")
     private Integer insertedTime;
 
     public Integer getInsertedTime() {
@@ -36,8 +36,12 @@ public class Watchers implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Watchers)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Watchers)) {
+            return false;
+        }
         return Objects.equals(id, ((Watchers) o).id);
     }
 

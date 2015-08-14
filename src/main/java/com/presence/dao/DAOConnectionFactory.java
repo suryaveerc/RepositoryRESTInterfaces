@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DAOConnectionFactory {
 
-    
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DAOConnectionFactory.class);
     private static final String databaseJNDI = "";
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";

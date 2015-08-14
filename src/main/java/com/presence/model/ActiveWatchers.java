@@ -1,31 +1,56 @@
 package com.presence.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.io.Serializable;
 
 /**
  * Created by Suryaveer on 7/16/2015.
  */
+@JsonPropertyOrder({"presentityURI", "watcherUsername", "watcherDomain", "toUser", "toDomain", "event", "eventId", "toTag", "fromTag", "callId", "localCseq", "remoteCseq", "contact", "recordRoute", "expires", "status", "reason", "version", "socketInfo", "localContact"})
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ActiveWatchers implements Serializable {
+
     private Integer id;
+    @JsonProperty("presentity_uri")
     private String presentityURI;
+
+    @Override
+    public String toString() {
+        return "ActiveWatchers{" + "presentityURI=" + presentityURI + ", watcherUsername=" + watcherUsername + ", watcherDomain=" + watcherDomain + ", event=" + event + ", toTag=" + toTag + ", fromTag=" + fromTag + ", callId=" + callId + '}';
+    }
+    @JsonProperty("watcher_username")
     private String watcherUsername;
+    @JsonProperty("watcher_domain")
     private String watcherDomain;
+    @JsonProperty("to_user")
     private String toUser;
+    @JsonProperty("to_domain")
     private String toDomain;
     private String event;
+    @JsonProperty("event_id")
     private String eventId;
+    @JsonProperty("to_tag")
     private String toTag;
+    @JsonProperty("from_tag")
     private String fromTag;
+    @JsonProperty("callid")
     private String callId;
+    @JsonProperty("local_cseq")
     private Integer localCseq;
+    @JsonProperty("remote_cseq")
     private Integer remoteCseq;
     private String contact;
+    @JsonProperty("record_route")
     private String recordRoute;
     private Integer expires;
     private Integer status;
     private String reason;
     private Integer version;
+    @JsonProperty("socket_info")
     private String socketInfo;
+    @JsonProperty("local_contact")
     private String localContact;
 
     public Integer getId() {
@@ -39,8 +64,12 @@ public class ActiveWatchers implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ActiveWatchers)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ActiveWatchers)) {
+            return false;
+        }
         return id.equals(((ActiveWatchers) o).id);
 
     }
