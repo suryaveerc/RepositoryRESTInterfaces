@@ -20,7 +20,7 @@ public class DAOConnectionFactory {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DAOConnectionFactory.class);
     private static final String databaseJNDI = "";
     private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://192.168.2.106:3306/opensips";
+    private static final String DB_URL = "jdbc:mysql://192.168.254.131:3306/opensips";
     // Database credentials
     private static final String USER = "root";
     private static final String PASS = "";

@@ -27,6 +27,7 @@ public class SubscriptionDAO {
 
 //ActiveWatchers Table: Primary Key = id
 //Unique index: presentity_uri,to_tag, from_tag, callid
+    //select status,expires,watcher_username,watcher_domain,callid from active_watchers where presentity_uri=? AND event=?
     // insert new subscription.
     private static final String INSERT_SUBS = "insert into active_watchers (presentity_uri,callid,to_tag,from_tag,to_user,to_domain,watcher_username,"
             + "watcher_domain,event,event_id,local_cseq,remote_cseq,expires,status,reason,record_route,contact,local_contact,version,socket_info )"
@@ -34,8 +35,11 @@ public class SubscriptionDAO {
 
     private static final String UBDATE_SUBS_BY_EVENT = "update active_watchers set local_cseq=?,version=?,status=?,reason=? where presentity_uri=? "
             + "AND watcher_username=? AND watcher_domain=? AND event=? AND event_id=? AND callid=? AND to_tag=? AND from_tag=?";
+    private static final String UBDATE_SUBS_BY_PRESENTITY = "update active_watchers set expires=?,local_cseq=?,remote_cseq=?,version=?,status=?,reason=?,contact=? where presentity_uri = ? AND callid = ? AND to_tag= ? AND from_tag=?";
 
-    private static final String DELETE_SUBS = "delete from active_watchers where expires<?";
+    private static final String DELETE_SUBS_BY_EXPIRY = "delete from active_watchers where expires<?";
+
+    private static final String DELETE_SUBS_BY_PRESENTITY = "delete from active_watchers where event=? AND to_tag=? AND presentity_uri=?";
     private static final String SELECT_ALL = "select presentity_uri,watcher_username,watcher_domain,to_user,to_domain,event,event_id,to_tag,from_tag,callid,local_cseq,remote_cseq,contact,record_route,expires,status,reason,version,socket_info,local_contact from active_watchers";
     //Used when looking for dialogs to send notifications.
     private static final String SELECT_BY_PRESENTITYURI = "select to_user,to_domain,watcher_username,watcher_domain,event_id,from_tag,to_tag,callid,local_cseq,record_route,contact,expires,reason,socket_info,local_contact,version from active_watchers where presentity_uri=? AND event=? AND status=? AND contact!=?";
@@ -86,12 +90,51 @@ public class SubscriptionDAO {
 
     }
 
-    public int updateSubscriptionByEvent(ActiveWatchers activeWatchers, UriInfo uriInfo) throws SQLException {
+    public int updateSubscriptionByPresentity(ActiveWatchers activeWatchers, UriInfo uriInfo) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         int index = 0;
 
         logger.debug(activeWatchers.toString());
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            preparedStatement = connection.prepareStatement(UBDATE_SUBS_BY_PRESENTITY);
+            //update columns
+            preparedStatement.setObject(++index, activeWatchers.getExpires());
+            preparedStatement.setObject(++index, activeWatchers.getLocalCseq());
+            preparedStatement.setObject(++index, activeWatchers.getRemoteCseq());
+            preparedStatement.setObject(++index, activeWatchers.getVersion());
+            preparedStatement.setObject(++index, activeWatchers.getStatus());
+            preparedStatement.setObject(++index, activeWatchers.getReason());
+            preparedStatement.setObject(++index, activeWatchers.getContact());
+            //where clause columns
+            preparedStatement.setObject(++index, uriInfo.getPathParameters().getFirst("presentityID"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("call_id"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("to_tag"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("from_tag"));
+
+            int status = preparedStatement.executeUpdate();
+            logger.debug("Update returned with status {}.", status);
+            return status;
+
+        } catch (SQLException ex) {
+            logger.error("Error while updating subscription by {}@{} for {} into database.", activeWatchers.getWatcherUsername(), activeWatchers.getWatcherDomain(), activeWatchers.getPresentityURI(), ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Error while updating subscription by {}@{} for {} into database.", activeWatchers.getWatcherUsername(), activeWatchers.getWatcherDomain(), activeWatchers.getPresentityURI(), ex);
+            throw ex;
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
+        }
+
+    }
+
+    public int updateSubscriptionByEvent(ActiveWatchers activeWatchers, UriInfo uriInfo) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        int index = 0;
+        int separatorIndex = uriInfo.getPathParameters().getFirst("watcherID").indexOf('@');
+        //ogger.debug(activeWatchers.toString());
         try {
             connection = DAOConnectionFactory.getConnection();
             preparedStatement = connection.prepareStatement(UBDATE_SUBS_BY_EVENT);
@@ -101,14 +144,14 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, activeWatchers.getStatus());
             preparedStatement.setObject(++index, activeWatchers.getReason());
             //where clause columns
-            preparedStatement.setObject(++index, activeWatchers.getPresentityURI());
-            preparedStatement.setObject(++index, activeWatchers.getWatcherUsername());
-            preparedStatement.setObject(++index, activeWatchers.getWatcherDomain());
-            preparedStatement.setObject(++index, activeWatchers.getEvent());
-            preparedStatement.setObject(++index, activeWatchers.getEventId());
-            preparedStatement.setObject(++index, activeWatchers.getCallId());
-            preparedStatement.setObject(++index, activeWatchers.getToTag());
-            preparedStatement.setObject(++index, activeWatchers.getFromTag());
+            preparedStatement.setObject(++index, uriInfo.getPathParameters().getFirst("presentityID"));
+            preparedStatement.setObject(++index, uriInfo.getPathParameters().getFirst("watcherID").substring(0, separatorIndex));
+            preparedStatement.setObject(++index, uriInfo.getPathParameters().getFirst("watcherID").substring(separatorIndex + 1));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("event"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("event_id"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("callid"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("to_tag"));
+            preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("from_tag"));
 
             int status = preparedStatement.executeUpdate();
             logger.debug("Update returned with status {}.", status);
@@ -138,7 +181,7 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, queryParameters.getFirst("event"));
             preparedStatement.setObject(++index, queryParameters.getFirst("status"));
             preparedStatement.setObject(++index, queryParameters.getFirst("contact"));
-   
+
             resultSet = preparedStatement.executeQuery();
             List<ActiveWatchers> activeWatchersList = new ArrayList<>();
             ActiveWatchers activeWatchers;
@@ -163,7 +206,7 @@ public class SubscriptionDAO {
                 activeWatchers.setVersion(resultSet.getInt(16));
                 activeWatchersList.add(activeWatchers);
             }
-            logger.debug("Total {} dialogs fetched from database for presentity {}.", activeWatchersList.size() , pathParameters.getFirst("presentityURI"));
+            logger.debug("Total {} dialogs fetched from database for presentity {}.", activeWatchersList.size(), pathParameters.getFirst("presentityURI"));
             return activeWatchersList;
         } catch (SQLException ex) {
             logger.error("Error while fetching dialogs created for presentity {}.", pathParameters.getFirst("presentityURI"), ex);
@@ -219,10 +262,62 @@ public class SubscriptionDAO {
             logger.error("Error while fetching dialogs.", ex);
             throw ex;
         } catch (Exception ex) {
-            logger.error("Error while fetching dialogs.",  ex);
+            logger.error("Error while fetching dialogs.", ex);
             throw ex;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
+        }
+    }
+
+    public int deleteSubscriptionByPresentity(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
+        String presentityURI = pathParameters.getFirst("presentityID");
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        int index = 0;
+        int status = 0;
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            preparedStatement = connection.prepareStatement(DELETE_SUBS_BY_PRESENTITY);
+
+            preparedStatement.setObject(++index, queryParameters.getFirst("event"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("to_tag"));
+            preparedStatement.setObject(++index, presentityURI);
+
+            status = preparedStatement.executeUpdate();
+            logger.debug("Delete Return status: {}", status);
+            return status;
+        } catch (SQLException ex) {
+            logger.error("Error while deleting subscriptions for : {} ", presentityURI, ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Error while deleting subscriptions for : {} ", presentityURI, ex);
+            throw ex;
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
+        }
+    }
+
+    public int deleteSubscriptionByQuery(MultivaluedMap<String, String> queryParameters) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        int status = 0;
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            if (queryParameters.containsKey("expires")) {
+                preparedStatement = connection.prepareStatement(DELETE_SUBS_BY_EXPIRY);
+                preparedStatement.setObject(1, queryParameters.getFirst("expires"));
+            }
+            status = preparedStatement.executeUpdate();
+            logger.debug("Delete Return status: {}", status);
+            return status;
+        } catch (SQLException ex) {
+            logger.error("Error while deleting subscriptions.", ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Error while deleting subscriptions.", ex);
+            throw ex;
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
         }
     }
 }
