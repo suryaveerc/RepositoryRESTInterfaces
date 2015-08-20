@@ -27,7 +27,6 @@ public class SubscriptionDAO {
 
 //ActiveWatchers Table: Primary Key = id
 //Unique index: presentity_uri,to_tag, from_tag, callid
-    //select status,expires,watcher_username,watcher_domain,callid from active_watchers where presentity_uri=? AND event=?
     // insert new subscription.
     private static final String INSERT_SUBS = "insert into active_watchers (presentity_uri,callid,to_tag,from_tag,to_user,to_domain,watcher_username,"
             + "watcher_domain,event,event_id,local_cseq,remote_cseq,expires,status,reason,record_route,contact,local_contact,version,socket_info )"
@@ -43,6 +42,8 @@ public class SubscriptionDAO {
     private static final String SELECT_ALL = "select presentity_uri,watcher_username,watcher_domain,to_user,to_domain,event,event_id,to_tag,from_tag,callid,local_cseq,remote_cseq,contact,record_route,expires,status,reason,version,socket_info,local_contact from active_watchers";
     //Used when looking for dialogs to send notifications.
     private static final String SELECT_BY_PRESENTITYURI = "select to_user,to_domain,watcher_username,watcher_domain,event_id,from_tag,to_tag,callid,local_cseq,record_route,contact,expires,reason,socket_info,local_contact,version from active_watchers where presentity_uri=? AND event=? AND status=? AND contact!=?";
+    private static final String SELECT_BY_WATCHERURI = "select presentity_uri, local_cseq, remote_cseq, record_route, status, reason,version where from_tag = ? AND to_tag = ? AND callid = ? AND event_id= ? AND  event= ? AND  to_user= ? AND to_domain = ? AND watcher_username = ? AND watcher_domain=?";
+    private static final String SELECT_BY_PRESENTITY_EVENT = "select status,expires,watcher_username,watcher_domain,callid from active_watchers where presentity_uri=? AND event=?";
 
     public int insertSubscription(ActiveWatchers activeWatchers) throws SQLException {
         Connection connection = null;
@@ -134,6 +135,7 @@ public class SubscriptionDAO {
         PreparedStatement preparedStatement = null;
         int index = 0;
         int separatorIndex = uriInfo.getPathParameters().getFirst("watcherID").indexOf('@');
+
         //ogger.debug(activeWatchers.toString());
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -175,9 +177,10 @@ public class SubscriptionDAO {
         ResultSet resultSet = null;
         int index = 0;
         try {
+            System.out.println("SDFSDFSDF");
             connection = DAOConnectionFactory.getConnection();
             preparedStatement = connection.prepareStatement(SELECT_BY_PRESENTITYURI);
-            preparedStatement.setObject(++index, pathParameters.getFirst("presentityURI"));
+            preparedStatement.setObject(++index, pathParameters.getFirst("presentityID"));
             preparedStatement.setObject(++index, queryParameters.getFirst("event"));
             preparedStatement.setObject(++index, queryParameters.getFirst("status"));
             preparedStatement.setObject(++index, queryParameters.getFirst("contact"));
@@ -204,6 +207,93 @@ public class SubscriptionDAO {
                 activeWatchers.setSocketInfo(resultSet.getString(14));
                 activeWatchers.setLocalContact(resultSet.getString(15));
                 activeWatchers.setVersion(resultSet.getInt(16));
+                activeWatchersList.add(activeWatchers);
+            }
+            logger.debug("Total {} dialogs fetched from database for presentity {}.", activeWatchersList.size(), pathParameters.getFirst("presentityURI"));
+            return activeWatchersList;
+        } catch (SQLException ex) {
+            logger.error("Error while fetching dialogs created for presentity {}.", pathParameters.getFirst("presentityURI"), ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Error while fetching dialogs created for presentity {}.", pathParameters.getFirst("presentityURI"), ex);
+            throw ex;
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
+        }
+    }
+
+    public List<ActiveWatchers> findByPresentityAndEvent(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int index = 0;
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            preparedStatement = connection.prepareStatement(SELECT_BY_PRESENTITY_EVENT);
+            preparedStatement.setObject(++index, pathParameters.getFirst("presentityURI"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("event"));
+
+            resultSet = preparedStatement.executeQuery();
+            List<ActiveWatchers> activeWatchersList = new ArrayList<>();
+            ActiveWatchers activeWatchers;
+            while (resultSet.next()) {
+//                index = 0;
+                //status,expires,watcher_username,watcher_domain,callid
+                activeWatchers = new ActiveWatchers();
+                activeWatchers.setStatus(resultSet.getInt(1));
+                activeWatchers.setExpires(resultSet.getInt(2));
+                activeWatchers.setWatcherUsername(resultSet.getString(3));
+                activeWatchers.setWatcherDomain(resultSet.getString(4));
+                activeWatchers.setCallId(resultSet.getString(5));
+
+                activeWatchersList.add(activeWatchers);
+            }
+            logger.debug("Total {} dialogs fetched from database for presentity {}.", activeWatchersList.size(), pathParameters.getFirst("presentityURI"));
+            return activeWatchersList;
+        } catch (SQLException ex) {
+            logger.error("Error while fetching dialogs created for presentity {}.", pathParameters.getFirst("presentityURI"), ex);
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Error while fetching dialogs created for presentity {}.", pathParameters.getFirst("presentityURI"), ex);
+            throw ex;
+        } finally {
+            DAOConnectionFactory.closeConnection(connection, preparedStatement, resultSet);
+        }
+    }
+
+    public List<ActiveWatchers> findByWatcherURI(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int index = 0;
+        int separatorIndex = pathParameters.getFirst("watcherID").indexOf('@');
+
+        try {
+            connection = DAOConnectionFactory.getConnection();
+            preparedStatement = connection.prepareStatement(SELECT_BY_WATCHERURI);
+
+            preparedStatement.setObject(++index, queryParameters.getFirst("from_tag"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("to_tag"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("callid"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("event_id"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("event"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("to_user"));
+            preparedStatement.setObject(++index, queryParameters.getFirst("to_domain"));
+            preparedStatement.setObject(++index, pathParameters.getFirst("watcherID").substring(0, separatorIndex));
+            preparedStatement.setObject(++index, pathParameters.getFirst("watcherID").substring(separatorIndex + 1));
+            resultSet = preparedStatement.executeQuery();
+            List<ActiveWatchers> activeWatchersList = new ArrayList<>();
+            ActiveWatchers activeWatchers;
+            while (resultSet.next()) {
+//                index = 0;
+                activeWatchers = new ActiveWatchers();
+                activeWatchers.setPresentityURI(resultSet.getString(1));
+                activeWatchers.setLocalCseq(resultSet.getInt(2));
+                activeWatchers.setRemoteCseq(resultSet.getInt(3));
+                activeWatchers.setRecordRoute(resultSet.getString(4));
+                activeWatchers.setStatus(resultSet.getInt(5));
+                activeWatchers.setReason(resultSet.getString(6));
+                activeWatchers.setVersion(resultSet.getInt(7));
                 activeWatchersList.add(activeWatchers);
             }
             logger.debug("Total {} dialogs fetched from database for presentity {}.", activeWatchersList.size(), pathParameters.getFirst("presentityURI"));

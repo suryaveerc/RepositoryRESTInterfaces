@@ -48,6 +48,8 @@ public class WatcherService {
     @Path("/{watcherURI}/{presentityURI}")
     @Produces("application/json")
     public Response getPresentityListForWatcher(@Context UriInfo uriInfo) {
+
+        System.out.println("hehe");
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
         WatcherDAO watcherDAO = new WatcherDAO();

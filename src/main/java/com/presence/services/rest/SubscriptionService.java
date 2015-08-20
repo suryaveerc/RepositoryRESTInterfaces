@@ -65,12 +65,13 @@ public class SubscriptionService {
             return Response.status(500).entity("Server Error").build();
         }
     }
-    
+
     @PUT
     @Path("/presentity/{presentityID}")
     @Consumes("application/json")
     public Response updateSubscriptionByPresentity(ActiveWatchers activeWatchers, @Context UriInfo uriInfo) {
         int status = 0;
+
         SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
         try {
             status = subscriptionDAO.updateSubscriptionByPresentity(activeWatchers, uriInfo);
@@ -96,6 +97,60 @@ public class SubscriptionService {
         try {
 
             activeWatchersList = subscriptionDAO.findAll();
+
+            if (activeWatchersList.isEmpty()) {
+                return Response.status(404).entity("No active watchers present.").build();
+            } else {
+                entity = new GenericEntity<List<ActiveWatchers>>(activeWatchersList) {
+                };
+                return Response.ok(entity).build();
+            }
+        } catch (Exception e) {
+            logger.error("Error while fetching all dialogs.", e);
+            return Response.status(500).entity("Server Error").build();
+        }
+    }
+
+    @GET
+    @Path("/watcher/{watcherID}")
+    @Produces("application/json")
+    public Response getSubscriptionByWatcher(@Context UriInfo uriInfo) {
+
+        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        List activeWatchersList;
+        GenericEntity<List<ActiveWatchers>> entity;
+        try {
+
+            activeWatchersList = subscriptionDAO.findByWatcherURI(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+
+            if (activeWatchersList.isEmpty()) {
+                return Response.status(404).entity("No active watchers present.").build();
+            } else {
+                entity = new GenericEntity<List<ActiveWatchers>>(activeWatchersList) {
+                };
+                return Response.ok(entity).build();
+            }
+        } catch (Exception e) {
+            logger.error("Error while fetching dialogs by watcher: {}.", uriInfo.getPathParameters().getFirst("watcherID"), e);
+            return Response.status(500).entity("Server Error").build();
+        }
+    }
+
+    @GET
+    @Path("/presentity/{presentityID}")
+    @Produces("application/json")
+    public Response getSubscriptionByPresentity(@Context UriInfo uriInfo) {
+
+        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        List activeWatchersList;
+        GenericEntity<List<ActiveWatchers>> entity;
+        try {
+
+            if (uriInfo.getQueryParameters().containsKey("status") && uriInfo.getQueryParameters().containsKey("contact")) {
+                activeWatchersList = subscriptionDAO.findByPresentityURI(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+            } else {
+                activeWatchersList = subscriptionDAO.findByPresentityAndEvent(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+            }
 
             if (activeWatchersList.isEmpty()) {
                 return Response.status(404).entity("No active watchers present.").build();
