@@ -196,4 +196,22 @@ public class SubscriptionService {
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
+
+    //This function is not used directly, means, used to delete from when xcap is used.
+    @DELETE
+    @Path("/{watcherID}/{presentityID}")
+    public Response deleteSubscriptionByWatcherAndPresentity(@Context UriInfo uriInfo) {
+        try {
+            SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            int status = subscriptionDAO.deleteSubscriptionPresentityAndWatcher(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+            logger.debug("Delete subscription for watcher {} and presentity {} returned with status: {} ", uriInfo.getPathParameters().getFirst("watcherID"), uriInfo.getPathParameters().getFirst("presentityID"), status);
+            ResponseBuilder response;
+//Return 200 if any record deleted, 204 otherwise.            
+            response = (status > 0 ? Response.ok() : Response.status(204));
+            return response.build();
+        } catch (Exception e) {
+            logger.error("Error while deleting subscription for watcher {} and presentity {}. ", uriInfo.getPathParameters().getFirst("watcherID"), uriInfo.getPathParameters().getFirst("presentityID"), e);
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
 }

@@ -9,8 +9,10 @@ import com.presence.dao.WatcherDAO;
 import com.presence.model.Watchers;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -45,9 +47,9 @@ public class WatcherService {
     }
 
     @GET
-    @Path("/{watcherURI}/{presentityURI}")
+    @Path("/{watcherURI}/presentity/{presentityURI}")
     @Produces("application/json")
-    public Response getPresentityListForWatcher(@Context UriInfo uriInfo) {
+    public Response getWatcherDetails(@Context UriInfo uriInfo) {
 
         System.out.println("hehe");
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
@@ -70,6 +72,103 @@ public class WatcherService {
             return response.build();
         } catch (Exception e) {
             logger.error("Error while fetching watcher {}.", pathParameters.getFirst("watcherURI"), e);
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
+
+    @GET
+    @Path("/presentity/{presentityURI}")
+    @Produces("application/json")
+    public Response getWatcherForPresentityByStatus(@Context UriInfo uriInfo) {
+
+        System.out.println("hehe");
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
+        WatcherDAO watcherDAO = new WatcherDAO();
+        List<Watchers> watchersList;
+        GenericEntity< List< Watchers>> entity;
+        try {
+            if (uriInfo.getQueryParameters().containsKey("status") && uriInfo.getQueryParameters().containsKey("event")) {
+                watchersList = watcherDAO.findByPresentityAndStatus(queryParameters, pathParameters);
+            } else {
+                watchersList = watcherDAO.findByPresentityAndEvent(queryParameters, pathParameters);
+            }
+            Response.ResponseBuilder response;
+
+            if (!watchersList.isEmpty()) {
+                entity = new GenericEntity<List<Watchers>>(watchersList) {
+                };
+                response = Response.ok(entity);
+            } else {
+                response = Response.status(Response.Status.NOT_FOUND).entity("Requested resource could not be found.");
+            }
+
+            return response.build();
+        } catch (Exception e) {
+            logger.error("Error while fetching watcher details for presentity {}.", pathParameters.getFirst("presentityURI"), e);
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
+
+    @DELETE
+    @Consumes("application/json")
+    public Response deleteWatchers(@Context UriInfo uriInfo) {
+        int status = 0;
+        WatcherDAO watcherDAO = new WatcherDAO();
+        try {
+            if (uriInfo.getQueryParameters().isEmpty()) {
+                status = watcherDAO.delete();
+                logger.debug("Delete returned with status: {} ", status);
+            } else {
+                status = watcherDAO.deleteByStatusAndInsertTime(uriInfo.getQueryParameters());
+                logger.debug("Delete by insertTime returned with status: {} ", status);
+            }
+
+            Response.ResponseBuilder response;
+//Return 200 if any record deleted, 204 otherwise.            
+            response = (status > 0 ? Response.ok() : Response.status(204));
+            return response.build();
+        } catch (Exception e) {
+            logger.error("Error while processing delete watchers.", e);
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
+
+    @DELETE
+    @Path("/{watcherURI}/presentity/{presentityURI}")
+    @Consumes("application/json")
+    public Response deleteByKey(@Context UriInfo uriInfo) {
+        int status = 0;
+        WatcherDAO watcherDAO = new WatcherDAO();
+        try {
+            status = watcherDAO.deleteByKey(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+            logger.debug("Delete for watcher {} and presentity {} returned with status: {} ", uriInfo.getPathParameters().getFirst("watcherURI"), uriInfo.getPathParameters().getFirst("presentityURI"), status);
+            Response.ResponseBuilder response;
+//Return 200 if any record deleted, 204 otherwise.            
+            response = (status > 0 ? Response.ok() : Response.status(204));
+            return response.build();
+        } catch (Exception e) {
+            logger.error("While delete for watcher {} and presentity {} returned with status: {} ", uriInfo.getPathParameters().getFirst("watcherURI"), uriInfo.getPathParameters().getFirst("presentityURI"), status, e);
+            return Response.status(500).entity("Server was unable to process the request.").build();
+        }
+    }
+
+    @PUT
+    @Path("/{watcherURI}/presentity/{presentityURI}")
+    @Consumes("application/json")
+    public Response updateWatcher(@Context UriInfo uriInfo, Watchers watcher) {
+        int status = 0;
+        WatcherDAO watcherDAO = new WatcherDAO();
+        try {
+            status = watcherDAO.updateStatus(watcher, uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+            logger.debug("Record for watcher-presentity ({} - {}) processed with status: {} ", uriInfo.getQueryParameters().getFirst("watcherURI"), uriInfo.getQueryParameters().getFirst("presentityURI"), status);
+            if (status > 0) {
+                return Response.status(200).build();
+            } else {
+                return Response.status(201).entity("No record Updated").build();
+            }
+        } catch (Exception e) {
+            logger.error("Record for watcher-presentity ({} - {}) processed with status: {} ", uriInfo.getQueryParameters().getFirst("watcherURI"), uriInfo.getQueryParameters().getFirst("presentityURI"), status, e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
     }
