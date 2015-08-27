@@ -76,7 +76,6 @@ public class WatcherDAO {
 
         int index = 0;
         Connection connection = null;
-        DAOConnectionFactory.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet rs = null;
         int status = 0;
@@ -118,7 +117,6 @@ public class WatcherDAO {
 
         int index = 0;
         Connection connection = null;
-        DAOConnectionFactory.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet rs = null;
         int status = 0;
@@ -181,7 +179,6 @@ public class WatcherDAO {
 
         int index = 0;
         Connection connection = null;
-        DAOConnectionFactory.getConnection();
         PreparedStatement preparedStatement = null;
         ResultSet rs = null;
         int status = 0;

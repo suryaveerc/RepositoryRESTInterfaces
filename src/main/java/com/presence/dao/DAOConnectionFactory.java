@@ -1,6 +1,5 @@
 package com.presence.dao;
 
-import com.presence.services.rest.WatcherService;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -18,12 +17,7 @@ import org.slf4j.LoggerFactory;
 public class DAOConnectionFactory {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DAOConnectionFactory.class);
-    private static final String databaseJNDI = "";
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://192.168.254.131:3306/opensips";
-    // Database credentials
-    private static final String USER = "root";
-    private static final String PASS = "";
+    private static final String databaseJNDI = "jdbc/presencedb";
     private static DataSource dataSource = null;
     private static Context context = null;
     private static Connection conn = null;
@@ -32,17 +26,17 @@ public class DAOConnectionFactory {
         System.out.println("Initialized");
     }
 
-    private static DataSource createConnection() {
-
+    private static DataSource getDataSource() {
         if (dataSource != null) {
             return dataSource;
         }
-
         try {
+             context = new InitialContext();
+
             if (context == null) {
                 context = new InitialContext();
             }
-            dataSource = (DataSource) (context).lookup(databaseJNDI);
+            dataSource = (DataSource) context.lookup("java:comp/env/"+databaseJNDI);
         } catch (NamingException e) {
             logger.error("Error while creating datasource.", e);
         }
@@ -50,21 +44,10 @@ public class DAOConnectionFactory {
     }
 
     protected static Connection getConnection() {
-
         try {
-            if (databaseJNDI == "") {
-                System.out.println("Creating database connection using DriverManager");
-                Class.forName(JDBC_DRIVER);
-                conn = DriverManager.getConnection(DB_URL, USER, PASS);
-            } else {
-                System.out.println("Creating database connection using DriverManager");
-                if (conn != null) {
-                    return conn;
-                }
-                conn = createConnection().getConnection();
-            }
-        } catch (SQLException | ClassNotFoundException e) {
-            logger.error("Error while database connection.", e);;
+            conn = getDataSource().getConnection();
+        } catch (SQLException e) {
+            logger.error("Error while database connection.", e);
         }
         return conn;
     }

@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context antiJARLocking="true" path="/PresenceRepository"/>
+<!--Context antiJARLocking="true" path="/PresenceRepository"/-->
+<Context>
+    <ResourceLink name="jdbc/presencedb"
+
+    global="jdbc/presencedb"
+
+    type="javax.sql.DataSource"
+
+    />
+</Context>
