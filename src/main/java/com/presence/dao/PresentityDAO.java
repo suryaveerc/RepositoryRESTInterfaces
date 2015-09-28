@@ -155,7 +155,6 @@ public class PresentityDAO {
             resultSet = preparedStatement.executeQuery();
             Presentity presentity;
             while (resultSet.next()) {
-                System.out.println("In while");
                 presentity = new Presentity();
 
                 presentity.setBody(resultSet.getString("body"));

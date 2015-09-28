@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Context antiJARLocking="true" path="/PresenceRepository"/-->
-<Context>
-    <ResourceLink name="jdbc/presencedb"
-
-    global="jdbc/presencedb"
-
-    type="javax.sql.DataSource"
-
-    />
+<Context path="/PresenceRepository">
+    <Resource auth="Container" 
+              cachePrepStmts="true" 
+              defaultAutoCommit="true" 
+              description="Presence database." 
+              driverClassName="com.mysql.jdbc.Driver" 
+              factory="com.zaxxer.hikari.HikariJNDIFactory" 
+              global="jdbc/presencedb" 
+              jdbcUrl="jdbc:mysql://192.168.254.137/opensips" 
+              maxWaitMillis="10000" maximumPoolSize="50" 
+              name="jdbc/presencedb" 
+              password="" 
+              prepStmtCacheSize="30" 
+              prepStmtCacheSqlLimit="500" 
+              removeAbandoned="true" 
+              removeAbandonedTimeout="300" 
+              type="javax.sql.DataSource" 
+              username="root"/>
 </Context>

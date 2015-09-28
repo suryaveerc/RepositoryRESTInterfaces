@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Suryaveer
  */
-@Path("/V1/subscription")
+@Path("/subscription")
 public class SubscriptionService {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);

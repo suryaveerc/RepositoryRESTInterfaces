@@ -179,7 +179,6 @@ public class SubscriptionDAO {
         ResultSet resultSet = null;
         int index = 0;
         try {
-            System.out.println("SDFSDFSDF");
             connection = DAOConnectionFactory.getConnection();
             preparedStatement = connection.prepareStatement(SELECT_BY_PRESENTITYURI);
             preparedStatement.setObject(++index, pathParameters.getFirst("presentityID"));

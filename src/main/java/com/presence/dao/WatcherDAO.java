@@ -67,7 +67,6 @@ public class WatcherDAO {
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, null);
-
         }
         return status;
     }

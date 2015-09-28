@@ -31,12 +31,13 @@ public class DAOConnectionFactory {
             return dataSource;
         }
         try {
-             context = new InitialContext();
+            context = new InitialContext();
 
             if (context == null) {
                 context = new InitialContext();
             }
-            dataSource = (DataSource) context.lookup("java:comp/env/"+databaseJNDI);
+
+            dataSource = (DataSource) context.lookup("java:comp/env/" + databaseJNDI);
         } catch (NamingException e) {
             logger.error("Error while creating datasource.", e);
         }

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Suryaveer
  */
-@Path("/V1/watcher")
+@Path("/watcher")
 public class WatcherService {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WatcherService.class);
@@ -51,7 +51,6 @@ public class WatcherService {
     @Produces("application/json")
     public Response getWatcherDetails(@Context UriInfo uriInfo) {
 
-        System.out.println("hehe");
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
         WatcherDAO watcherDAO = new WatcherDAO();
@@ -81,7 +80,6 @@ public class WatcherService {
     @Produces("application/json")
     public Response getWatcherForPresentityByStatus(@Context UriInfo uriInfo) {
 
-        System.out.println("hehe");
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
         WatcherDAO watcherDAO = new WatcherDAO();

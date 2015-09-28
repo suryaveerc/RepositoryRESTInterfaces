@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by Suryaveer on 7/20/2015.
  */
-@Path("/V1/presentity")
+@Path("/presentity")
 public class PresentityService {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityService.class);
