@@ -1,10 +1,8 @@
 package com.presence.services.rest;
 
 import com.presence.dao.PresentityDAO;
-import com.presence.model.Presentity;
-
+import com.presence.beans.Presentity;
 import java.util.List;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -77,6 +75,7 @@ public class PresentityService {
     public Response getAllPresentity(@QueryParam("expires") Integer expires) {
 
         try {
+             logger.debug("sfsdfsd");
             PresentityDAO presentityDAO = new PresentityDAO();
             List<Presentity> presentityList;
             GenericEntity< List< Presentity>> entity;

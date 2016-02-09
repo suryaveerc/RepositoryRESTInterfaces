@@ -14,7 +14,6 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>d:\presence.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--Pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern-->
             <pattern>%d{yyyy-MM-dd_HH:mm:ss.SSS} [%thread] %-5level  %class{36}.%M %L  - %msg%n</pattern>
         </encoder>
 
@@ -25,7 +24,7 @@
         </rollingPolicy>
 
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>2MB</MaxFileSize>
+            <MaxFileSize>100MB</MaxFileSize>
         </triggeringPolicy>
     </appender>
 
@@ -36,7 +35,7 @@
         <appender-ref ref="STDOUT" />
     </logger>
     <!-- By default, the level of the root level is set to DEBUG -->
-    <root level="ERROR">
+    <root level="DEBUG">
         <appender-ref ref="FILE" />
         <appender-ref ref="STDOUT" />
     </root>

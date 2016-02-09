@@ -1,6 +1,6 @@
 package com.presence.dao;
 
-import com.presence.model.Presentity;
+import com.presence.beans.Presentity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

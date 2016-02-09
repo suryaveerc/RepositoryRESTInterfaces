@@ -6,7 +6,9 @@
 package com.presence.services.rest;
 
 import com.presence.dao.SubscriptionDAO;
-import com.presence.model.ActiveWatchers;
+import com.presence.beans.ActiveWatchers;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,7 +40,10 @@ public class SubscriptionService {
         int status = 0;
         SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
         try {
+            long start = System.currentTimeMillis();
             status = subscriptionDAO.insertSubscription(activeWatchers);
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             return Response.status(201).build();
         } catch (Exception ex) {
             logger.error("Error while creating subscription.", ex);
@@ -53,7 +58,10 @@ public class SubscriptionService {
         int status = 0;
         SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
         try {
+            long start = System.currentTimeMillis();
             status = subscriptionDAO.updateSubscriptionByEvent(activeWatchers, uriInfo);
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             if (status == 0) {
                 logger.debug("No subscriptions were updated for watcher {}.", uriInfo.getPathParameters().getFirst("watcherID"));
                 return Response.status(204).entity("No record updated.").build();
@@ -74,7 +82,10 @@ public class SubscriptionService {
 
         SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
         try {
+            long start = System.currentTimeMillis();
             status = subscriptionDAO.updateSubscriptionByPresentity(activeWatchers, uriInfo);
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             if (status == 0) {
                 logger.debug("No subscriptions were updated for presentity {}.", uriInfo.getPathParameters().getFirst("presentityID"));
                 return Response.status(204).entity("No record updated.").build();
@@ -96,7 +107,10 @@ public class SubscriptionService {
         GenericEntity<List<ActiveWatchers>> entity;
         try {
 
+            long start = System.currentTimeMillis();
             activeWatchersList = subscriptionDAO.findAll();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
 
             if (activeWatchersList.isEmpty()) {
                 return Response.status(404).entity("No active watchers present.").build();
@@ -121,8 +135,10 @@ public class SubscriptionService {
         GenericEntity<List<ActiveWatchers>> entity;
         try {
 
+            long start = System.currentTimeMillis();
             activeWatchersList = subscriptionDAO.findByWatcherURI(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
-
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             if (activeWatchersList.isEmpty()) {
                 return Response.status(404).entity("No active watchers present.").build();
             } else {
@@ -147,9 +163,17 @@ public class SubscriptionService {
         try {
 
             if (uriInfo.getQueryParameters().containsKey("status") && uriInfo.getQueryParameters().containsKey("contact")) {
+                long start = System.currentTimeMillis();
                 activeWatchersList = subscriptionDAO.findByPresentityURI(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+
+                long end = System.currentTimeMillis();
+                logger.debug("elasped time {}", (end - start));
             } else {
+                long start = System.currentTimeMillis();
                 activeWatchersList = subscriptionDAO.findByPresentityAndEvent(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+
+                long end = System.currentTimeMillis();
+                logger.debug("elasped time {}", (end - start));
             }
 
             if (activeWatchersList.isEmpty()) {
@@ -170,7 +194,10 @@ public class SubscriptionService {
 
         try {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            long start = System.currentTimeMillis();
             int status = subscriptionDAO.deleteSubscriptionByQuery(uriInfo.getQueryParameters());
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             ResponseBuilder response;
 //Return 200 if any record deleted, 204 otherwise.            
             response = (status > 0 ? Response.ok() : Response.status(204));
@@ -186,7 +213,11 @@ public class SubscriptionService {
     public Response deleteSubscriptionByPresentity(@Context UriInfo uriInfo) {
         try {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            long start = System.currentTimeMillis();
             int status = subscriptionDAO.deleteSubscriptionByPresentity(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             ResponseBuilder response;
 //Return 200 if any record deleted, 204 otherwise.            
             response = (status > 0 ? Response.ok() : Response.status(204));
@@ -203,7 +234,11 @@ public class SubscriptionService {
     public Response deleteSubscriptionByWatcherAndPresentity(@Context UriInfo uriInfo) {
         try {
             SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            long start = System.currentTimeMillis();
             int status = subscriptionDAO.deleteSubscriptionPresentityAndWatcher(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
+
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             logger.debug("Delete subscription for watcher {} and presentity {} returned with status: {} ", uriInfo.getPathParameters().getFirst("watcherID"), uriInfo.getPathParameters().getFirst("presentityID"), status);
             ResponseBuilder response;
 //Return 200 if any record deleted, 204 otherwise.            

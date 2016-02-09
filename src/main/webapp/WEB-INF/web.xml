@@ -16,7 +16,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>Presence Repository Web Service</servlet-name>
-        <url-pattern>/PresenceRepository/V1/*</url-pattern>
+        <url-pattern>/V1/*</url-pattern>
     </servlet-mapping>
     
     <resource-ref>

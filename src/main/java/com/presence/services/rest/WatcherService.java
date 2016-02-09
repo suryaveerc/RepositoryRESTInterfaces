@@ -6,7 +6,7 @@
 package com.presence.services.rest;
 
 import com.presence.dao.WatcherDAO;
-import com.presence.model.Watchers;
+import com.presence.beans.Watchers;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;

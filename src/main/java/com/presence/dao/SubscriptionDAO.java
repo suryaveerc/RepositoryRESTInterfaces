@@ -5,11 +5,13 @@
  */
 package com.presence.dao;
 
-import com.presence.model.ActiveWatchers;
+import com.presence.beans.ActiveWatchers;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.MultivaluedMap;
@@ -25,8 +27,8 @@ public class SubscriptionDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionDAO.class);
 
-//ActiveWatchers Table: Primary Key = id
-//Unique index: presentity_uri,to_tag, from_tag, callid
+    // ActiveWatchers Table: Primary Key = id
+    // Unique index: presentity_uri,to_tag, from_tag, callid
     // insert new subscription.
     private static final String INSERT_SUBS = "insert into active_watchers (presentity_uri,callid,to_tag,from_tag,to_user,to_domain,watcher_username,"
             + "watcher_domain,event,event_id,local_cseq,remote_cseq,expires,status,reason,record_route,contact,local_contact,version,socket_info )"
@@ -42,7 +44,7 @@ public class SubscriptionDAO {
 
     private static final String DELETE_SUBS_BY_PRES_WATCHER = "delete from active_watchers where presentity_uri = ? AND watcher_username = ? AND watcher_domain = ? AND event = ?";
     private static final String SELECT_ALL = "select presentity_uri,watcher_username,watcher_domain,to_user,to_domain,event,event_id,to_tag,from_tag,callid,local_cseq,remote_cseq,contact,record_route,expires,status,reason,version,socket_info,local_contact from active_watchers";
-    //Used when looking for dialogs to send notifications.
+    // Used when looking for dialogs to send notifications.
     private static final String SELECT_BY_PRESENTITYURI = "select to_user,to_domain,watcher_username,watcher_domain,event_id,from_tag,to_tag,callid,local_cseq,record_route,contact,expires,reason,socket_info,local_contact,version from active_watchers where presentity_uri=? AND event=? AND status=? AND contact!=?";
     private static final String SELECT_BY_WATCHERURI = "select presentity_uri, local_cseq, remote_cseq, record_route, status, reason,version where from_tag = ? AND to_tag = ? AND callid = ? AND event_id= ? AND  event= ? AND  to_user= ? AND to_domain = ? AND watcher_username = ? AND watcher_domain=?";
     private static final String SELECT_BY_PRESENTITY_EVENT = "select status,expires,watcher_username,watcher_domain,callid from active_watchers where presentity_uri=? AND event=?";
@@ -77,7 +79,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, activeWatchers.getVersion());
             preparedStatement.setObject(++index, activeWatchers.getSocketInfo());
 
+            long start = System.currentTimeMillis();
             int status = preparedStatement.executeUpdate();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             logger.debug("Insert returned with status {}.", status);
             return status;
 
@@ -116,7 +121,13 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("to_tag"));
             preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("from_tag"));
 
+         
+            long start = System.currentTimeMillis();
             int status = preparedStatement.executeUpdate();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
+ 
+            
             logger.debug("Update returned with status {}.", status);
             return status;
 
@@ -156,8 +167,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("callid"));
             preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("to_tag"));
             preparedStatement.setObject(++index, uriInfo.getQueryParameters().getFirst("from_tag"));
-
+            long start = System.currentTimeMillis();
             int status = preparedStatement.executeUpdate();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             logger.debug("Update returned with status {}.", status);
             return status;
 
@@ -186,7 +199,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, queryParameters.getFirst("status"));
             preparedStatement.setObject(++index, queryParameters.getFirst("contact"));
 
+            long start = System.currentTimeMillis();
             resultSet = preparedStatement.executeQuery();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             List<ActiveWatchers> activeWatchersList = new ArrayList<>();
             ActiveWatchers activeWatchers;
             while (resultSet.next()) {
@@ -234,7 +250,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, pathParameters.getFirst("presentityURI"));
             preparedStatement.setObject(++index, queryParameters.getFirst("event"));
 
+            long start = System.currentTimeMillis();
             resultSet = preparedStatement.executeQuery();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             List<ActiveWatchers> activeWatchersList = new ArrayList<>();
             ActiveWatchers activeWatchers;
             while (resultSet.next()) {
@@ -282,7 +301,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, queryParameters.getFirst("to_domain"));
             preparedStatement.setObject(++index, pathParameters.getFirst("watcherID").substring(0, separatorIndex));
             preparedStatement.setObject(++index, pathParameters.getFirst("watcherID").substring(separatorIndex + 1));
+            long start = System.currentTimeMillis();
             resultSet = preparedStatement.executeQuery();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             List<ActiveWatchers> activeWatchersList = new ArrayList<>();
             ActiveWatchers activeWatchers;
             while (resultSet.next()) {
@@ -319,7 +341,10 @@ public class SubscriptionDAO {
             connection = DAOConnectionFactory.getConnection();
             preparedStatement = connection.prepareStatement(SELECT_ALL);
 
+            long start = System.currentTimeMillis();
             resultSet = preparedStatement.executeQuery();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             List<ActiveWatchers> activeWatchersList = new ArrayList<>();
             ActiveWatchers activeWatchers;
             while (resultSet.next()) {
@@ -374,7 +399,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(++index, queryParameters.getFirst("to_tag"));
             preparedStatement.setObject(++index, presentityURI);
 
+            long start = System.currentTimeMillis();
             status = preparedStatement.executeUpdate();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             logger.debug("Delete Return status: {}", status);
             return status;
         } catch (SQLException ex) {
@@ -399,7 +427,10 @@ public class SubscriptionDAO {
                 preparedStatement = connection.prepareStatement(DELETE_SUBS_BY_EXPIRY);
                 preparedStatement.setObject(1, queryParameters.getFirst("expires"));
             }
+            long start = System.currentTimeMillis();
             status = preparedStatement.executeUpdate();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             logger.debug("Delete Return status: {}", status);
             return status;
         } catch (SQLException ex) {
@@ -428,7 +459,10 @@ public class SubscriptionDAO {
             preparedStatement.setObject(3, pathParameters.getFirst("watcherID").substring(separatorIndex + 1));
             preparedStatement.setObject(4, queryParameters.getFirst("event"));
 
+            long start = System.currentTimeMillis();
             status = preparedStatement.executeUpdate();
+            long end = System.currentTimeMillis();
+            logger.debug("elasped time {}", (end - start));
             logger.debug("Delete Return status: {}", status);
             return status;
         } catch (SQLException ex) {
