@@ -36,10 +36,12 @@ public class PresentityDAO {
     private static final String SQL_CHECK = "select count(*) from presentity where domain=? AND username=? AND event=? AND etag=?";
     // used to check if a presentity has presence info present
     private static final String SQL_CHECK_NO_ETAG = "select count(*) from presentity where domain=? AND username=? AND event=?";
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
 
     public int update(Presentity presentity, String etag, String domain, String event, String userName) throws Exception {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int rowsAffected = 0;
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -68,8 +70,8 @@ public class PresentityDAO {
 
     public int insert(Presentity presentity) throws Exception {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int rowsAffected = 0;
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -96,8 +98,8 @@ public class PresentityDAO {
     }
 
     public List<Presentity> fetchAll(Integer expires) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         List<Presentity> presentityList = new ArrayList<>();
         try {
@@ -136,8 +138,8 @@ public class PresentityDAO {
     }
 
     public List<Presentity> findByKey(String domain, String userName, String event, String etag) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         List<Presentity> presentityList = new ArrayList<>();
         try {
@@ -179,8 +181,8 @@ public class PresentityDAO {
     }
 
     public List<Presentity> findByExpires(int expires) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         List<Presentity> presentityList = new ArrayList<>();
         try {
@@ -215,8 +217,8 @@ public class PresentityDAO {
     }
 
     public int delete(String domain, String userName, String event, String etag) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int rowsAffected = 0;
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -226,7 +228,7 @@ public class PresentityDAO {
             preparedStatement.setObject(3, event);
             preparedStatement.setObject(4, etag);
             rowsAffected = preparedStatement.executeUpdate();
-            System.out.println("Delete Staus: " + rowsAffected);
+            logger.debug("Delete Staus: {} rows deleted.",rowsAffected);
         } catch (SQLException e) {
             logger.error("Error while creating preparedstatement", e);
             throw e;
@@ -240,15 +242,15 @@ public class PresentityDAO {
     }
 
     public int deleteByExpires(Integer expires) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int rowsAffected = 0;
         try {
             connection = DAOConnectionFactory.getConnection();
             preparedStatement = connection.prepareStatement(SQL_DELETE_BY_EXPIRES);
             preparedStatement.setObject(1, expires);
             rowsAffected = preparedStatement.executeUpdate();
-            System.out.println("Delete Staus: " + rowsAffected);
+            logger.debug("Delete Staus: {} rows deleted.",rowsAffected);
         } catch (SQLException e) {
             logger.error("Error while creating preparedstatement", e);
             throw e;
@@ -262,8 +264,8 @@ public class PresentityDAO {
     }
 
     public Boolean check(String domain, String userName, String event, String etag) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet rs = null;
         int count = 0;
         try {
@@ -271,13 +273,14 @@ public class PresentityDAO {
             if (etag != null) {
                 preparedStatement = connection.prepareStatement(SQL_CHECK);
                 preparedStatement.setObject(4, etag);
-            } else {
+            } else { 
                 preparedStatement = connection.prepareStatement(SQL_CHECK_NO_ETAG);
             }
+            
             preparedStatement.setObject(1, domain);
             preparedStatement.setObject(2, userName);
             preparedStatement.setObject(3, event);
-//            System.out.println(preparedStatement.toString());
+
             rs = preparedStatement.executeQuery();
             while (rs.next()) {
                 count = rs.getInt(1);
@@ -288,7 +291,6 @@ public class PresentityDAO {
             throw e;
         } catch (Exception e) {
             logger.error("Error while creating preparedstatement", e);
-
             throw e;
         } finally {
             DAOConnectionFactory.closeConnection(connection, preparedStatement, rs);

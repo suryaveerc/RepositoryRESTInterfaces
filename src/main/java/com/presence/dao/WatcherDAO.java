@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 public class WatcherDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(WatcherDAO.class);
-    //Watcher Table: Primary key = id.
-    //Unique index: presentity_uri,watcher_username,event,watcher_domain
 
     // used to check watcher authorization status for new subs request.
     private static final String SELECT_STATUS_BY_KEY = "select status,reason from watchers where presentity_uri=? AND watcher_username=? AND watcher_domain=? AND event=?";
@@ -39,11 +37,15 @@ public class WatcherDAO {
     private static final String UPDATE_STATUS_BY_KEY = "update watchers set status=?, reason=? where presentity_uri = ? AND watcher_username = ? AND watcher_domain = ? and event =?";
     private static final String DELETE_BY_STATUS_INSERT_TIME = "delete from watchers where inserted_time< ? AND status= ?";
     private static final String DELETE_BY_KEY = "delete from watchers where presentity_uri = ? AND watcher_username = ? AND watcher_domain = ? and event =?";
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
+    //Watcher Table: Primary key = id.
+    //Unique index: presentity_uri,watcher_username,event,watcher_domain
 
     public int insert(Watchers watcher) throws SQLException {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int status = 0;
         int index = 0;
         try {
@@ -72,10 +74,8 @@ public class WatcherDAO {
     public List<Watchers> findByKey(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
 
         int index = 0;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
         ResultSet rs = null;
-        int status = 0;
         String watcherURI = null;
 
         try {
@@ -113,11 +113,9 @@ public class WatcherDAO {
     public List<Watchers> findByPresentityAndStatus(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
 
         int index = 0;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet rs = null;
-        int status = 0;
-        String watcherURI = null;
 
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -150,8 +148,8 @@ public class WatcherDAO {
     }
 
     public int delete() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int status = 0;
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -175,11 +173,9 @@ public class WatcherDAO {
     public List<Watchers> findByPresentityAndEvent(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
 
         int index = 0;
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet rs = null;
-        int status = 0;
-        String watcherURI = null;
 
         try {
             connection = DAOConnectionFactory.getConnection();
@@ -214,10 +210,9 @@ public class WatcherDAO {
 
     public int updateStatus(Watchers watcher, MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int status = 0;
-        int index = 0;
         int separatorIndex = pathParameters.getFirst("watcherURI").indexOf('@');
 
         try {
@@ -243,8 +238,8 @@ public class WatcherDAO {
     }
 
     public int deleteByStatusAndInsertTime(MultivaluedMap<String, String> queryParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int index = 0;
         int status = 0;
         try {
@@ -268,8 +263,8 @@ public class WatcherDAO {
     }
 
     public int deleteByKey(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int status = 0;
         int separatorIndex = pathParameters.getFirst("watcherURI").indexOf('@');
         try {

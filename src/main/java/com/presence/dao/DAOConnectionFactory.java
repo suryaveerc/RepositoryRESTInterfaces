@@ -17,7 +17,7 @@ public class DAOConnectionFactory {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DAOConnectionFactory.class);
     private static final String databaseJNDI = "jdbc/presencedb";
     private static DataSource dataSource = null;
-
+    private DAOConnectionFactory(){}
     static {
 
         try {

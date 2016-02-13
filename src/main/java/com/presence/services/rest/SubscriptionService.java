@@ -5,10 +5,8 @@
  */
 package com.presence.services.rest;
 
-import com.presence.dao.SubscriptionDAO;
 import com.presence.beans.ActiveWatchers;
-import java.time.Duration;
-import java.time.Instant;
+import com.presence.dao.SubscriptionDAO;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,17 +31,18 @@ import org.slf4j.LoggerFactory;
 public class SubscriptionService {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
+    private SubscriptionDAO subscriptionDAO;
 
     @POST
     @Consumes("application/json")
     public Response addSubscription(ActiveWatchers activeWatchers) {
-        int status = 0;
-        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        long start = System.currentTimeMillis();
+        subscriptionDAO = new SubscriptionDAO();
         try {
-            long start = System.currentTimeMillis();
-            status = subscriptionDAO.insertSubscription(activeWatchers);
+
+            subscriptionDAO.insertSubscription(activeWatchers);
             long end = System.currentTimeMillis();
-            logger.debug("elasped time {}", (end - start));
+            logger.debug("addSubscription elasped time {}", (end - start));
             return Response.status(201).build();
         } catch (Exception ex) {
             logger.error("Error while creating subscription.", ex);
@@ -55,17 +54,21 @@ public class SubscriptionService {
     @Path("/watcher/{watcherID}/{presentityID}")
     @Consumes("application/json")
     public Response updateSubscription(ActiveWatchers activeWatchers, @Context UriInfo uriInfo) {
+        long start = System.currentTimeMillis();
         int status = 0;
-        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        subscriptionDAO = new SubscriptionDAO();
         try {
-            long start = System.currentTimeMillis();
+
             status = subscriptionDAO.updateSubscriptionByEvent(activeWatchers, uriInfo);
-            long end = System.currentTimeMillis();
-            logger.debug("elasped time {}", (end - start));
+
             if (status == 0) {
                 logger.debug("No subscriptions were updated for watcher {}.", uriInfo.getPathParameters().getFirst("watcherID"));
+                long end = System.currentTimeMillis();
+                logger.debug(" updateSubscription elasped time {}", (end - start));
                 return Response.status(204).entity("No record updated.").build();
             } else {
+                long end = System.currentTimeMillis();
+                logger.debug(" updateSubscription elasped time {}", (end - start));
                 return Response.status(200).build();
             }
         } catch (Exception ex) {
@@ -80,7 +83,7 @@ public class SubscriptionService {
     public Response updateSubscriptionByPresentity(ActiveWatchers activeWatchers, @Context UriInfo uriInfo) {
         int status = 0;
 
-        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        subscriptionDAO = new SubscriptionDAO();
         try {
             long start = System.currentTimeMillis();
             status = subscriptionDAO.updateSubscriptionByPresentity(activeWatchers, uriInfo);
@@ -101,22 +104,24 @@ public class SubscriptionService {
     @GET
     @Produces("application/json")
     public Response getSubscription() {
-
-        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        long start = System.currentTimeMillis();
+        subscriptionDAO = new SubscriptionDAO();
         List activeWatchersList;
         GenericEntity<List<ActiveWatchers>> entity;
         try {
 
-            long start = System.currentTimeMillis();
             activeWatchersList = subscriptionDAO.findAll();
-            long end = System.currentTimeMillis();
-            logger.debug("elasped time {}", (end - start));
 
             if (activeWatchersList.isEmpty()) {
+                long end = System.currentTimeMillis();
+                logger.debug("getSubscription elasped time {}", (end - start));
                 return Response.status(404).entity("No active watchers present.").build();
+
             } else {
                 entity = new GenericEntity<List<ActiveWatchers>>(activeWatchersList) {
                 };
+                long end = System.currentTimeMillis();
+                logger.debug("getSubscription elasped time {}", (end - start));
                 return Response.ok(entity).build();
             }
         } catch (Exception e) {
@@ -129,21 +134,23 @@ public class SubscriptionService {
     @Path("/watcher/{watcherID}")
     @Produces("application/json")
     public Response getSubscriptionByWatcher(@Context UriInfo uriInfo) {
-
-        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        long start = System.currentTimeMillis();
+        subscriptionDAO = new SubscriptionDAO();
         List activeWatchersList;
         GenericEntity<List<ActiveWatchers>> entity;
         try {
 
-            long start = System.currentTimeMillis();
             activeWatchersList = subscriptionDAO.findByWatcherURI(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
-            long end = System.currentTimeMillis();
-            logger.debug("elasped time {}", (end - start));
+
             if (activeWatchersList.isEmpty()) {
+                long end = System.currentTimeMillis();
+                logger.debug("getSubscriptionByWatcher elasped time {}", (end - start));
                 return Response.status(404).entity("No active watchers present.").build();
             } else {
                 entity = new GenericEntity<List<ActiveWatchers>>(activeWatchersList) {
                 };
+                long end = System.currentTimeMillis();
+                logger.debug("getSubscriptionByWatcher elasped time {}", (end - start));
                 return Response.ok(entity).build();
             }
         } catch (Exception e) {
@@ -157,7 +164,7 @@ public class SubscriptionService {
     @Produces("application/json")
     public Response getSubscriptionByPresentity(@Context UriInfo uriInfo) {
 
-        SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+        subscriptionDAO = new SubscriptionDAO();
         List activeWatchersList;
         GenericEntity<List<ActiveWatchers>> entity;
         try {
@@ -193,7 +200,7 @@ public class SubscriptionService {
     public Response deleteSubscription(@Context UriInfo uriInfo) {
 
         try {
-            SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            subscriptionDAO = new SubscriptionDAO();
             long start = System.currentTimeMillis();
             int status = subscriptionDAO.deleteSubscriptionByQuery(uriInfo.getQueryParameters());
             long end = System.currentTimeMillis();
@@ -212,7 +219,7 @@ public class SubscriptionService {
     @Path("/presentity/{presentityID}")
     public Response deleteSubscriptionByPresentity(@Context UriInfo uriInfo) {
         try {
-            SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            subscriptionDAO = new SubscriptionDAO();
             long start = System.currentTimeMillis();
             int status = subscriptionDAO.deleteSubscriptionByPresentity(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
 
@@ -233,7 +240,7 @@ public class SubscriptionService {
     @Path("/{watcherID}/{presentityID}")
     public Response deleteSubscriptionByWatcherAndPresentity(@Context UriInfo uriInfo) {
         try {
-            SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+            subscriptionDAO = new SubscriptionDAO();
             long start = System.currentTimeMillis();
             int status = subscriptionDAO.deleteSubscriptionPresentityAndWatcher(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
 

@@ -15,11 +15,6 @@ public class ActiveWatchers implements Serializable {
     private Integer id;
     @JsonProperty("presentity_uri")
     private String presentityURI;
-
-    @Override
-    public String toString() {
-        return "ActiveWatchers{" + "presentityURI=" + presentityURI + ", watcherUsername=" + watcherUsername + ", watcherDomain=" + watcherDomain + ", event=" + event + ", toTag=" + toTag + ", fromTag=" + fromTag + ", callId=" + callId + '}';
-    }
     @JsonProperty("watcher_username")
     private String watcherUsername;
     @JsonProperty("watcher_domain")
@@ -239,4 +234,8 @@ public class ActiveWatchers implements Serializable {
         this.localContact = localContact;
     }
 
+    @Override
+    public String toString() {
+        return "ActiveWatchers{" + "presentityURI=" + presentityURI + ", watcherUsername=" + watcherUsername + ", watcherDomain=" + watcherDomain + ", event=" + event + ", toTag=" + toTag + ", fromTag=" + fromTag + ", callId=" + callId + '}';
+    }
 }

@@ -1,7 +1,7 @@
 package com.presence.services.rest;
 
-import com.presence.dao.PresentityDAO;
 import com.presence.beans.Presentity;
+import com.presence.dao.PresentityDAO;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -26,16 +26,17 @@ import org.slf4j.LoggerFactory;
 public class PresentityService {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityService.class);
+    private PresentityDAO presentityDAO;
     /* This method allows to insert new presentity into the repository */
-
+    private String userName;
+    private String domain;
     @POST
     @Consumes("application/json")
     public Response addPresentity(Presentity presentity) {
-
-        System.out.println(presentity);
-        PresentityDAO presentityDAO = new PresentityDAO();
+        presentityDAO = new PresentityDAO();
         try {
-            int status = presentityDAO.insert(presentity);
+            presentityDAO.insert(presentity);
+
             return Response.status(201).build();
         } catch (Exception e) {
             logger.error("Error while sending request to database", e);
@@ -50,9 +51,9 @@ public class PresentityService {
     @Consumes("application/json")
     public Response updatePresentity(@PathParam("presentityId") String presentityId, Presentity presentity, @QueryParam("event") String event, @QueryParam("etag") String etag) {
 
-        String userName = presentityId.substring(0, presentityId.indexOf('@'));
-        String domain = presentityId.substring(presentityId.indexOf('@') + 1);
-        PresentityDAO presentityDAO = new PresentityDAO();
+        userName = presentityId.substring(0, presentityId.indexOf('@'));
+        domain = presentityId.substring(presentityId.indexOf('@') + 1);
+        presentityDAO = new PresentityDAO();
         logger.debug(presentity.toString());
         /*RFC2616 If an existing resource is modified, either the 200 (OK)
          or 204 (No Content) response codes SHOULD be sent to indicate successful 
@@ -76,7 +77,7 @@ public class PresentityService {
 
         try {
              logger.debug("sfsdfsd");
-            PresentityDAO presentityDAO = new PresentityDAO();
+            presentityDAO = new PresentityDAO();
             List<Presentity> presentityList;
             GenericEntity< List< Presentity>> entity;
             presentityList = presentityDAO.fetchAll(expires);
@@ -102,11 +103,11 @@ public class PresentityService {
     @Path("/{presentityId}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getPresentity(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
-        System.out.println("Query for: " + presentityId + " : " + event + " : " + etag);
+        logger.debug("Query for: " + presentityId + " : " + event + " : " + etag);
         try {
-            String userName = presentityId.substring(0, presentityId.indexOf('@'));
-            String domain = presentityId.substring(presentityId.indexOf('@') + 1);
-            PresentityDAO presentityDAO = new PresentityDAO();
+            userName = presentityId.substring(0, presentityId.indexOf('@'));
+            domain = presentityId.substring(presentityId.indexOf('@') + 1);
+            presentityDAO = new PresentityDAO();
             List<Presentity> presentityList;
             GenericEntity< List< Presentity>> entity;
             presentityList = presentityDAO.findByKey(domain, userName, event, etag);
@@ -131,13 +132,13 @@ public class PresentityService {
     @DELETE
     @Path("/{presentityId}")
     public Response deletePresentity(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
-        System.out.println("Delete request for: " + presentityId + " : " + event + " : " + etag);
+        logger.debug("Delete request for: " + presentityId + " : " + event + " : " + etag);
 
         int status = 0;
         try {
-            String userName = presentityId.substring(0, presentityId.indexOf('@'));
-            String domain = presentityId.substring(presentityId.indexOf('@') + 1);
-            PresentityDAO presentityDAO = new PresentityDAO();
+            userName = presentityId.substring(0, presentityId.indexOf('@'));
+            domain = presentityId.substring(presentityId.indexOf('@') + 1);
+            presentityDAO = new PresentityDAO();
             status = presentityDAO.delete(domain, userName, event, etag);
             ResponseBuilder response;
 //Return 200 if any record deleted, 204 otherwise.            
@@ -151,12 +152,12 @@ public class PresentityService {
 
     @DELETE
     public Response deletePresentityByExpire(@QueryParam("expires") Integer expires) {
-        System.out.println("Delete request for: " + expires);
+        logger.debug("Delete request for: " + expires);
 
         int status = 0;
         try {
             if (expires != null) {
-                PresentityDAO presentityDAO = new PresentityDAO();
+                presentityDAO = new PresentityDAO();
                 status = presentityDAO.deleteByExpires(expires);
             }
             ResponseBuilder response;
@@ -175,9 +176,9 @@ public class PresentityService {
     public Response checkPresentity(@PathParam("presentityId") String presentityId, @QueryParam("event") String event, @QueryParam("etag") String etag) {
         logger.debug("Request for presentity:{}, event: {}, etag: {}", presentityId, event, etag);
         try {
-            String userName = presentityId.substring(0, presentityId.indexOf('@'));
-            String domain = presentityId.substring(presentityId.indexOf('@') + 1);
-            PresentityDAO presentityDAO = new PresentityDAO();
+            userName = presentityId.substring(0, presentityId.indexOf('@'));
+            domain = presentityId.substring(presentityId.indexOf('@') + 1);
+            presentityDAO = new PresentityDAO();
             Boolean recordPresent;
             recordPresent = presentityDAO.check(domain, userName, event, etag);
             ResponseBuilder response;

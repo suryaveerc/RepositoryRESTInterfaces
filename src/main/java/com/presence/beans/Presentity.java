@@ -30,12 +30,12 @@ public class Presentity implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if (this == o) 
             return true;
-        }
-        if (!(o instanceof Presentity)) {
+        
+        if (!(o instanceof Presentity)) 
             return false;
-        }
+        
         return (!id.equals(((Presentity) o).id));
 
     }
