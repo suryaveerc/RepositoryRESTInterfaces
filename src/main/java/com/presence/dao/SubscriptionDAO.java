@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.presence.dao;
 
 import com.presence.beans.ActiveWatchers;
@@ -10,8 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.MultivaluedMap;
@@ -26,7 +20,6 @@ import org.slf4j.LoggerFactory;
 public class SubscriptionDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionDAO.class);
-
     // ActiveWatchers Table: Primary Key = id
     // Unique index: presentity_uri,to_tag, from_tag, callid
     // insert new subscription.
@@ -48,10 +41,11 @@ public class SubscriptionDAO {
     private static final String SELECT_BY_PRESENTITYURI = "select to_user,to_domain,watcher_username,watcher_domain,event_id,from_tag,to_tag,callid,local_cseq,record_route,contact,expires,reason,socket_info,local_contact,version from active_watchers where presentity_uri=? AND event=? AND status=? AND contact!=?";
     private static final String SELECT_BY_WATCHERURI = "select presentity_uri, local_cseq, remote_cseq, record_route, status, reason,version where from_tag = ? AND to_tag = ? AND callid = ? AND event_id= ? AND  event= ? AND  to_user= ? AND to_domain = ? AND watcher_username = ? AND watcher_domain=?";
     private static final String SELECT_BY_PRESENTITY_EVENT = "select status,expires,watcher_username,watcher_domain,callid from active_watchers where presentity_uri=? AND event=?";
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
 
     public int insertSubscription(ActiveWatchers activeWatchers) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
         int index = 0;
 
         logger.debug(activeWatchers.toString());
@@ -99,8 +93,8 @@ public class SubscriptionDAO {
     }
 
     public int updateSubscriptionByPresentity(ActiveWatchers activeWatchers, UriInfo uriInfo) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int index = 0;
 
         logger.debug(activeWatchers.toString());
@@ -144,8 +138,8 @@ public class SubscriptionDAO {
     }
 
     public int updateSubscriptionByEvent(ActiveWatchers activeWatchers, UriInfo uriInfo) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int index = 0;
         int separatorIndex = uriInfo.getPathParameters().getFirst("watcherID").indexOf('@');
 
@@ -187,8 +181,8 @@ public class SubscriptionDAO {
     }
 
     public List<ActiveWatchers> findByPresentityURI(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         int index = 0;
         try {
@@ -240,8 +234,8 @@ public class SubscriptionDAO {
     }
 
     public List<ActiveWatchers> findByPresentityAndEvent(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         int index = 0;
         try {
@@ -282,8 +276,8 @@ public class SubscriptionDAO {
     }
 
     public List<ActiveWatchers> findByWatcherURI(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         int index = 0;
         int separatorIndex = pathParameters.getFirst("watcherID").indexOf('@');
@@ -333,8 +327,8 @@ public class SubscriptionDAO {
     }
 
     public List<ActiveWatchers> findAll() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         ResultSet resultSet = null;
         int index = 0;
         try {
@@ -387,8 +381,8 @@ public class SubscriptionDAO {
 
     public int deleteSubscriptionByPresentity(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
         String presentityURI = pathParameters.getFirst("presentityID");
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int index = 0;
         int status = 0;
         try {
@@ -417,8 +411,8 @@ public class SubscriptionDAO {
     }
 
     public int deleteSubscriptionByQuery(MultivaluedMap<String, String> queryParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int status = 0;
 
         try {
@@ -445,8 +439,8 @@ public class SubscriptionDAO {
     }
 
     public int deleteSubscriptionPresentityAndWatcher(MultivaluedMap<String, String> queryParameters, MultivaluedMap<String, String> pathParameters) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
+        
+        
         int status = 0;
         int separatorIndex = pathParameters.getFirst("watcherID").indexOf('@');
 

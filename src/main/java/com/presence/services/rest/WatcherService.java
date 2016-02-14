@@ -5,8 +5,8 @@
  */
 package com.presence.services.rest;
 
-import com.presence.dao.WatcherDAO;
 import com.presence.beans.Watchers;
+import com.presence.dao.WatcherDAO;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,12 +30,12 @@ import org.slf4j.LoggerFactory;
 public class WatcherService {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WatcherService.class);
-
+    private WatcherDAO watcherDAO;
     @POST
     @Consumes("application/json")
     public Response addWatcher(Watchers watcher) {
         int status = 0;
-        WatcherDAO watcherDAO = new WatcherDAO();
+        watcherDAO = new WatcherDAO();
         try {
             status = watcherDAO.insert(watcher);
             logger.debug("Record for watcher-presentity ({} - {}) processed with status: {} ", watcher.getWatcherUsername(), watcher.getPresentityUri(), status);
@@ -53,7 +53,7 @@ public class WatcherService {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
-        WatcherDAO watcherDAO = new WatcherDAO();
+        watcherDAO = new WatcherDAO();
         List<Watchers> watchersList;
         GenericEntity< List< Watchers>> entity;
         try {
@@ -82,7 +82,7 @@ public class WatcherService {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         MultivaluedMap<String, String> pathParameters = uriInfo.getPathParameters();
-        WatcherDAO watcherDAO = new WatcherDAO();
+        watcherDAO = new WatcherDAO();
         List<Watchers> watchersList;
         GenericEntity< List< Watchers>> entity;
         try {
@@ -97,9 +97,10 @@ public class WatcherService {
                 entity = new GenericEntity<List<Watchers>>(watchersList) {
                 };
                 response = Response.ok(entity);
-            } else {
+            } else { 
                 response = Response.status(Response.Status.NOT_FOUND).entity("Requested resource could not be found.");
             }
+            
 
             return response.build();
         } catch (Exception e) {
@@ -112,7 +113,7 @@ public class WatcherService {
     @Consumes("application/json")
     public Response deleteWatchers(@Context UriInfo uriInfo) {
         int status = 0;
-        WatcherDAO watcherDAO = new WatcherDAO();
+        watcherDAO = new WatcherDAO();
         try {
             if (uriInfo.getQueryParameters().isEmpty()) {
                 status = watcherDAO.delete();
@@ -137,7 +138,7 @@ public class WatcherService {
     @Consumes("application/json")
     public Response deleteByKey(@Context UriInfo uriInfo) {
         int status = 0;
-        WatcherDAO watcherDAO = new WatcherDAO();
+        watcherDAO = new WatcherDAO();
         try {
             status = watcherDAO.deleteByKey(uriInfo.getQueryParameters(), uriInfo.getPathParameters());
             logger.debug("Delete for watcher {} and presentity {} returned with status: {} ", uriInfo.getPathParameters().getFirst("watcherURI"), uriInfo.getPathParameters().getFirst("presentityURI"), status);
@@ -156,7 +157,7 @@ public class WatcherService {
     @Consumes("application/json")
     public Response updateWatcher(@Context UriInfo uriInfo, Watchers watcher) {
         int status = 0;
-        WatcherDAO watcherDAO = new WatcherDAO();
+        watcherDAO = new WatcherDAO();
         try {
             status = watcherDAO.updateStatus(watcher, uriInfo.getQueryParameters(), uriInfo.getPathParameters());
             logger.debug("Record for watcher-presentity ({} - {}) processed with status: {} ", uriInfo.getQueryParameters().getFirst("watcherURI"), uriInfo.getQueryParameters().getFirst("presentityURI"), status);
