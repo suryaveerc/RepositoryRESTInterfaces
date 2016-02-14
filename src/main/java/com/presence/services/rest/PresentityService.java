@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 @Path("/presentity")
 public class PresentityService {
 
+    /* This method allows to insert new presentity into the repository */
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PresentityService.class);
     private PresentityDAO presentityDAO;
-    /* This method allows to insert new presentity into the repository */
     private String userName;
     private String domain;
     @POST
@@ -36,13 +36,11 @@ public class PresentityService {
         presentityDAO = new PresentityDAO();
         try {
             presentityDAO.insert(presentity);
-
             return Response.status(201).build();
         } catch (Exception e) {
             logger.error("Error while sending request to database", e);
             return Response.status(500).entity("Server was unable to process the request.").build();
         }
-
     }
     /* This method allows to update new presentity into the repository */
 

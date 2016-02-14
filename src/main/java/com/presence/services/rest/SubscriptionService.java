@@ -39,7 +39,6 @@ public class SubscriptionService {
         long start = System.currentTimeMillis();
         subscriptionDAO = new SubscriptionDAO();
         try {
-
             subscriptionDAO.insertSubscription(activeWatchers);
             long end = System.currentTimeMillis();
             logger.debug("addSubscription elasped time {}", (end - start));
